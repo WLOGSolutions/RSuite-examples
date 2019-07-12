@@ -1,0 +1,11 @@
+Package: ARIMAmodelling
+Type: Package
+Title: Provides tools for ARIMA models
+Version: 0.1
+Date: 2019-07-09
+Author: urszulabialonczyk
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: More about what it does (maybe more than one line)
+License: What license is it under?
+Imports: logging, dplyr, forecast, ggplot2, ggfortify, tseries
+RoxygenNote: 6.1.1

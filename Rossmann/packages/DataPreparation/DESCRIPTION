@@ -1,0 +1,11 @@
+Package: DataPreparation
+Type: Package
+Title: Prepares data for modelling
+Version: 0.1
+Date: 2019-07-04
+Author: urszulabialonczyk
+Maintainer: Who to complain to <ubialonczyk@gmail.com>
+Description: More about what it does (maybe more than one line)
+License: What license is it under?
+Imports: logging, dplyr, data.table
+RoxygenNote: 6.1.1

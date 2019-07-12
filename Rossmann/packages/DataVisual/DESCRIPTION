@@ -1,0 +1,11 @@
+Package: DataVisual
+Type: Package
+Title: Visualises the data
+Version: 0.1
+Date: 2019-07-05
+Author: urszulabialonczyk
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: More about what it does (maybe more than one line)
+License: What license is it under?
+Imports: logging, ggplot2, dplyr
+RoxygenNote: 6.1.1
