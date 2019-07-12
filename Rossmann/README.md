@@ -17,7 +17,7 @@ The main part of the project is in folder named “R” - you can find the maste
 
 ## TECHNICAL PART
 
-In a folder Dane, you have the data based on which the project was built (train_filled_order.csv) and the test set (test.csv) on which the forecast was prepared. 
+Under the link : https://wlog-rsuite.s3.amazonaws.com/examples-data/Rossmann-data.zip , you can find the data based on which the project was built (train_filled_order.csv) and the test set (test.csv) on which the forecast was prepared. 
 
 Whether you want to use your own data or not, you have to fill in the file config_templ.txt first. You should do it as follows:
 * data_path - it should contain a path to a folder where the data is stored
