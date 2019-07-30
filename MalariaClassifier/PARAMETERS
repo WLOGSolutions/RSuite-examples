@@ -1,0 +1,6 @@
+RSuiteVersion: 0.37.253
+RVersion: 3.6
+Project: MalariaClassifier
+Repositories: MRAN[2019-07-29]
+Artifacts: config_templ.txt
+ZipVersion: 0.1

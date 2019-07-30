@@ -1,0 +1,8 @@
+LogLevel: INFO
+dataset_path: data/cell_images
+new_folder_path: work
+m: 2000
+n: 2001
+o: 2500
+p: 2501
+r: 3000
