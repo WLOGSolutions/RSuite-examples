@@ -37,13 +37,14 @@ library(MalariaModel)
 
 #Split the dataset into training, test and validation sets
 
-DataPreparation::splitAndSave(config$dataset_path,
-             config$new_folder_path,
-             config$m,
-             config$n,
-             config$o,
-             config$p,
-             config$r)
+DataPreparation::splitAndSave(
+                     config$dataset_path,
+                     config$new_folder_path,
+                     config$m,
+                     config$n,
+                     config$o,
+                     config$p,
+                     config$r)
 
 
 #Get training and validation samples
