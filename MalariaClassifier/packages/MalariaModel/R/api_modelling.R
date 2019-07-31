@@ -74,23 +74,39 @@ loadModel <- function(f_path){
 #'@return A data table with accuracy and loss statistics saved in a .csv file in a work folder.
 #'
 #'@export
-evaluateModel <- function(model, test_data, test_labels, f_path){
+evaluateModel <- function(model, test_data, test_labels){
   eva <- keras::evaluate(model, test_data, test_labels)
   dt <- data.table::data.table(loss=eva$loss, acc=eva$acc)
-  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session_id)), "evaluation_statistics"))
   return(dt)
 }
 
-#' Predict classes and probabilities of belonging to the predicted class for the testing samples using a trained model. Save them in a .csv file.
+#'Save model evaluation: acc and loss.
+#'@param dt A data table/data frame object.
+#'@param f_path A path to the folder where the evaluation statistics are supposed to be saved.
+#'@return A .csv file called "evaluation_statistics".
+#'@export
+saveModelEvaluation <- function(dt, f_path){
+  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session_id)), "evaluation_statistics"))
+}
+
+#' Predict classes and probabilities of belonging to the predicted class for the testing samples using a trained model.
 #' @param model A fitted keras model object.
 #' @param test_data A data tensor in a shape of N x 150 x 150 x 3.
 #' @return A data table with two columns: Class and Probability saved in a .csv file in a work folder.
 #' @export
-predictClassesAndProbabilities <- function(model, test_data, f_path){
+predictClassesAndProbabilities <- function(model, test_data){
   classes <- keras::predict_classes(model, test_data)
   probabilities <- keras::predict_proba(model, test_data)
   dt <- data.table::data.table(Class=classes, Probability=probabilities)
   colnames(dt) <- c("Class", "Probability")
-  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session_id)), "predictions"))
   return(dt)
+}
+
+#'Save predicted classes and probabilities into a .csv file.
+#'@param dt A data table/data frame object.
+#'@param f_path A path to the folder where predictions are supposed to be saved.
+#'@return A .csv file called "predictions".
+#'@export
+savePredictions <- function(dt, f_path, session){
+  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), "predictions"))
 }

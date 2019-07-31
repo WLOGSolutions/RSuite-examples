@@ -18,7 +18,15 @@ config <- load_config()
 args <- args_parser()
 
 #----------------------------------------------------------------------------------------------
-reticulate::use_python(python = file.path(script_path, "..", "conda", "bin"), require = TRUE)
+
+if (grepl("darwin|linux-gnu", R.version$os)) {
+  #Linux or MacOS
+  reticulate::use_python(python = file.path(script_path, "..", "conda", "bin"), require = TRUE)
+} else {
+  # Windows
+  reticulate::use_python(python = file.path(script_path, "..", "conda"), require = TRUE)
+}
+
 
 library(DataPreparation)
 library(MalariaModel)
@@ -42,54 +50,60 @@ DataPreparation::splitAndSave(config$dataset_path,
 
 #Get training and validation samples
 
-train_data <- getAllImages(config$new_folder_path, "train")
+train_data <- DataPreparation::getAllImages(config$new_folder_path, "train")
 
-valid_data <- getAllImages(config$new_folder_path, "validation")
+valid_data <- DataPreparation::getAllImages(config$new_folder_path, "validation")
 
 #Convert the samples into a proper form
 
-train_data <- convertSamples(train_data$data_tensor, train_data$labels, length(train_data$labels))
+train_data <- DataPreparation::convertSamples(train_data$data_tensor, train_data$labels, length(train_data$labels))
 
-valid_data <- convertSamples(valid_data$data_tensor, valid_data$labels, length(valid_data$labels))
+valid_data <- DataPreparation::convertSamples(valid_data$data_tensor, valid_data$labels, length(valid_data$labels))
 
 
 #2) MODEL TRAINING
 
 #Create the model: define its architecture and compile it
 
-model <- createModel()
+model <- MalariaModel::createModel()
 
 #Fit the model
 
-model <- trainModel(model)
+model <- MalariaModel::trainModel(model)
 
 session_id <- Sys.time()
 
 #Save the model
 
-saveModel(model, config$new_folder_path, session=session_id)
+MalariaModel::saveModel(model, config$new_folder_path, session=session_id)
 
 
 #3) MODEL TESTING
 
 #Get testing samples
 
-test_data <- getAllImages(config$new_folder_path, "test")
+test_data <- DataPreparation::getAllImages(config$new_folder_path, "test")
 
 #Convert the samples into a proper form
 
-test_data <- convertSamples(test_data$data_tensor, test_data$labels, length(test_data$labels))
+test_data <- DataPreparation::convertSamples(test_data$data_tensor, test_data$labels, length(test_data$labels))
 
-#Evaluate the trained model and save the results
+#Evaluate the trained model
 
-evaluateModel(model, test_data$data_tensor, test_data$labels, config$new_folder_path)
+evaluation <- MalariaModel::evaluateModel(model, test_data$data_tensor, test_data$labels)
+
+#Save model evaluation into a .csv file
+
+MalariaModel::saveModelEvaluation(evaluation, config$new_folder_path)
 
 #Predict classes of the test samples and the probability of each sample belonging to the predicted class
 
-predictClassesAndProbabilities(model, test_data$data_tensor, config$new_folder_path)
+predictions <- MalariaModel::predictClassesAndProbabilities(model, test_data$data_tensor, config$new_folder_path)
 
+#Save predictions into a .csv file
 
+MalariaModel::savePredictions(dt=predictions, config$new_folder_path, session = session_id)
 
 #Load the model
 
-model <- loadModel(config$model_path)
+model <- MalariaModel::loadModel(config$model_path)

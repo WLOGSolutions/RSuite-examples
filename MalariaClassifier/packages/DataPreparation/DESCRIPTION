@@ -12,5 +12,5 @@ Imports:
 	tensorflow,
 	keras,
 	abind
-SystemRequirements: conda (python=3.6.6 tensorflow=1.10.0 keras=2.2.2 pillow=5.2.0)
+SystemRequirements: conda (python tensorflow keras pillow h5py)
 RoxygenNote: 6.1.1

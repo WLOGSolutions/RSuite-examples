@@ -2,12 +2,11 @@
 
 export(DataPreparation_getLogger)
 export(ImageLoad)
-export(convertLabels)
+export(convertSamples)
 export(getAllImages)
-export(normalizePixelIntensities)
-export(reshapeArrays)
-export(split_and_save)
+export(splitAndSave)
 import(logging)
 
 import(tensorflow)
 import(keras)
+import(abind)
