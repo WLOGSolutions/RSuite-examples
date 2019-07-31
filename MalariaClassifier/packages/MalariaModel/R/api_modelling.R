@@ -1,35 +1,28 @@
 #' Define the architecture of the model.
-#' @return The architecture of the model.
+#' Compile the model
+#' @return A compiled model.
 #' @export
 
-ModelArchitecture <- function (){
+createModel <- function (){
   model_architecture <- keras_model_sequential() %>%
-    layer_conv_2d(filters = 32, kernel_size = c(3, 3), activation = "relu", input_shape = c(150, 150, 3)) %>%
+    layer_conv_2d(filters=32, kernel_size = c(3,3), activation = "relu", input_shape = c(150, 150, 3)) %>%
     layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    layer_conv_2d(filters = 64, kernel_size = c(3, 3), activation = "relu") %>%
+    layer_conv_2d(filters=64, kernel_size = c(3,3), activation = "relu") %>%
     layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    layer_conv_2d(filters = 128, kernel_size = c(3, 3), activation = "relu") %>%
+    layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
     layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    layer_conv_2d(filters = 128, kernel_size = c(3, 3), activation = "relu") %>%
-    layer_max_pooling_2d(pool_size = c(2, 2)) %>%
+    layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
+    layer_max_pooling_2d(pool_size = c(2,2)) %>%
     layer_flatten() %>%
-    layer_dropout(rate = 0.5) %>%
-    layer_dense(units = 512, activation = "relu") %>%
+    layer_dropout(rate=0.5) %>%
+    layer_dense(units=512, activation = "relu") %>%
     layer_dense(units = 1, activation = "sigmoid")
 
+  model_architecture %>% compile(loss="binary_crossentropy", optimizer=optimizer_rmsprop(lr=1e-5), metrics=c("acc"))
   return(model_architecture)
 
 }
 
-#'Compile the model.
-#' @param model Keras model composed of a linear stack of layers.
-#' @return A compiled keras model object
-#'
-#' @export
-CompileModel <- function(model){
-  model %>% compile(loss="binary_crossentropy", optimizer=optimizer_rmsprop(lr=1e-5), metrics=c("acc"))
-  return(model)
-}
 
 #'Train the model based on given train and validation samples.
 #' @param model A compiled keras model object.
@@ -47,52 +40,57 @@ trainModel <- function(model, epochs = 30, batch_size = 100) {
   return(model)
 }
 
-#'Save the trained model on a hard drive.
+#'Save the trained model.
 #' @param model The trained model.
 #' @param save_path A path to a folder where the model is supposed to be saved.
-#' @return A hdf5 file named "my_model".
+#' @return A folder named "work + session_id" with a hdf5 file named "my_model" inside.
 #' @export
-saveModel <- function(model, save_path) {
-  dir.create(save_path, showWarnings = FALSE)
+saveModel <- function(model, save_path, session) {
+
+  work_path <- file.path(save_path, sprintf("work %s", as.character(session)))
+
+  if(!dir.exists(work_path)){
+    dir.create(work_path)
+  }
 
   model_name <- "my_model"
-  model_fpath <- file.path(save_path, model_name)
+  model_fpath <- file.path(work_path, model_name)
   keras::save_model_hdf5(model, model_fpath)
 
 }
-#' Load the model named "my_model" from a chosen folder.
-#' @param f_path A path to a folder where "my_model" is stored.
+
+#' Load the model from a chosen directory.
+#' @param f_path A path to the model.
 #' @return A keras model object.
 #' @export
 loadModel <- function(f_path){
-  keras::load_model_hdf5(file.path(f_path, "my_model"))
+  keras::load_model_hdf5(file.path(f_path))
 }
 
-#'Evaluate the trained model based on the test dataset
+#'Evaluate the trained model based on the test dataset and save the results in a work folder.
 #'@param model A trained model.
-#'@param test_data A data tensor in a shape of N x 150 x 150 x 3
-#'@param test_labels One-hot encoded matrix of labels.
+#'@param test_data A data tensor in a shape of N x 150 x 150 x 3.
+#'@param test_labels A vector of labels.
+#'@return A data table with accuracy and loss statistics saved in a .csv file in a work folder.
 #'
 #'@export
-evaluateModel <- function(model, test_data, test_labels){
-  keras::evaluate(model, test_data, test_labels)
+evaluateModel <- function(model, test_data, test_labels, f_path){
+  eva <- keras::evaluate(model, test_data, test_labels)
+  dt <- data.table::data.table(loss=eva$loss, acc=eva$acc)
+  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session_id)), "evaluation_statistics"))
+  return(dt)
 }
 
-#' Predict classes of the testing samples using a trained model.
+#' Predict classes and probabilities of belonging to the predicted class for the testing samples using a trained model. Save them in a .csv file.
 #' @param model A fitted keras model object.
 #' @param test_data A data tensor in a shape of N x 150 x 150 x 3.
-#' @return One-hot encoded labels : 1 - Parasitized, 0 - Uninfected.
+#' @return A data table with two columns: Class and Probability saved in a .csv file in a work folder.
 #' @export
-predictClasses <- function(model, test_data){
-  keras::predict_classes(model, test_data)
-}
-
-#' Return probabilities of the predictions.
-#' @param model A fitted keras model object.
-#' @param test_data A data tensor in a shape of N x 150 x 150 x 3.
-#' @return The probabilities of a particular image belonging to the predicted class.
-#' @export
-predictProbabilities <- function(model, test_data){
+predictClassesAndProbabilities <- function(model, test_data, f_path){
+  classes <- keras::predict_classes(model, test_data)
   probabilities <- keras::predict_proba(model, test_data)
-  return(probabilities)
+  dt <- data.table::data.table(Class=classes, Probability=probabilities)
+  colnames(dt) <- c("Class", "Probability")
+  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session_id)), "predictions"))
+  return(dt)
 }

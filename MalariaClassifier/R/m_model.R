@@ -18,62 +18,56 @@ config <- load_config()
 args <- args_parser()
 
 #----------------------------------------------------------------------------------------------
-reticulate::use_python(python = file.path(script_path, "..", "conda"), require = TRUE)
+reticulate::use_python(python = file.path(script_path, "..", "conda", "bin"), require = TRUE)
 
 library(DataPreparation)
 library(MalariaModel)
+
+devtools::load_all(file.path(script_path, "..", "packages", "DataPreparation"))
+devtools::load_all(file.path(script_path, "..", "packages", "MalariaModel"))
 
 #-----------------------------------------------------------------------------------------------
 #1) DATA PREPARATION
 
 #Split the dataset into training, test and validation sets
 
-DataPreparation::split_and_save(
-                     config$dataset_path,
-                     config$new_folder_path,
-                     config$m,
-                     config$n,
-                     config$o,
-                     config$p,
-                     config$r)
+DataPreparation::splitAndSave(config$dataset_path,
+             config$new_folder_path,
+             config$m,
+             config$n,
+             config$o,
+             config$p,
+             config$r)
 
 
 #Get training and validation samples
 
-train_data <- DataPreparation::getAllImages(config$new_folder_path, "train")
+train_data <- getAllImages(config$new_folder_path, "train")
 
-valid_data <- DataPreparation::getAllImages(config$new_folder_path, "validation")
+valid_data <- getAllImages(config$new_folder_path, "validation")
 
 #Convert the samples into a proper form
 
-train_data$data_tensor <- reshapeArrays(train_data$data_tensor, 2000)
-train_data$data_tensor <- normalizePixelIntensities(train_data$data_tensor)
-train_data$labels <- convertLabels(1000)
+train_data <- convertSamples(train_data$data_tensor, train_data$labels, length(train_data$labels))
 
-
-valid_data$data_tensor <- reshapeArrays(valid_data$data_tensor, 1000)
-valid_data$data_tensor <- normalizePixelIntensities(valid_data$data_tensor)
-valid_data$labels <- convertLabels(500)
-
+valid_data <- convertSamples(valid_data$data_tensor, valid_data$labels, length(valid_data$labels))
 
 
 #2) MODEL TRAINING
 
-#Define the architecture of the model
+#Create the model: define its architecture and compile it
 
-model <- ModelArchitecture()
-
-#Compile the model
-
-model <- CompileModel(model)
+model <- createModel()
 
 #Fit the model
 
 model <- trainModel(model)
 
+session_id <- Sys.time()
+
 #Save the model
 
-saveModel(model, config$new_folder_path)
+saveModel(model, config$new_folder_path, session=session_id)
 
 
 #3) MODEL TESTING
@@ -84,25 +78,18 @@ test_data <- getAllImages(config$new_folder_path, "test")
 
 #Convert the samples into a proper form
 
-test_data$data_tensor <- normalizePixelIntensities(test_data$data_tensor)
-test_data$data_tensor <- reshapeArrays(test_data$data_tensor, 1000)
-test_data$labels <- convertLabels(500)
+test_data <- convertSamples(test_data$data_tensor, test_data$labels, length(test_data$labels))
 
-#Evaluate trained model
+#Evaluate the trained model and save the results
 
-evaluateModel(model, test_data$data_tensor, test_data$labels)
+evaluateModel(model, test_data$data_tensor, test_data$labels, config$new_folder_path)
 
-#Predict classes of the test samples
+#Predict classes of the test samples and the probability of each sample belonging to the predicted class
 
-predictClasses(model, test_data$data_tensor)
+predictClassesAndProbabilities(model, test_data$data_tensor, config$new_folder_path)
 
-#The probabilities of each image belonging to the predicted class
-
-probabilities <- predictProbabilities(model, test_data$data_tensor)
-probabilities
 
 
 #Load the model
 
-model <- loadModel(config$new_folder_path)
-
+model <- loadModel(config$model_path)
