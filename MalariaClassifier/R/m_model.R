@@ -27,12 +27,14 @@ if (grepl("darwin|linux-gnu", R.version$os)) {
   reticulate::use_python(python = file.path(script_path, "..", "conda"), require = TRUE)
 }
 
+suppressPackageStartupMessages({
+  library(data.table)
+  library(DataPreparation)
+  library(MalariaModel)
+})
 
-library(DataPreparation)
-library(MalariaModel)
-
-devtools::load_all(file.path(script_path, "..", "packages", "DataPreparation"))
-devtools::load_all(file.path(script_path, "..", "packages", "MalariaModel"))
+#devtools::load_all(file.path(script_path, "..", "packages", "DataPreparation"))
+#devtools::load_all(file.path(script_path, "..", "packages", "MalariaModel"))
 
 #-----------------------------------------------------------------------------------------------
 #1) DATA PREPARATION
