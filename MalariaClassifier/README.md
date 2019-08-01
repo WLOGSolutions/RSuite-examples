@@ -11,26 +11,23 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-As for a person who has never had anything to do with Python, building my first convolutional neural network (CNN) was a pretty pleasant experience. All thanks to the fact that, although I was using Python all the time, I didn’t have to use Python’s code at all! How was it possible? The aim of this article is for you to find out and to be able to recreate my steps.
+Imagine you're a data scientist working in a science lab. One day you analise some data and you realise that the number of people affected by malaria has started to raise dramatically over the past few months. You know nothing about biology, so you can't help with curing it, but you're good at detecting patterns, so you may be able to build a model which recognises wether a person is infected or not. You ask around a little and you learn that to check the patient's health status, the first step is to analise their drop of blood. This is a quite good information, because you know that to classify images you need to bulild a convolutional neural network. You encounter two problems, though. First, you know that the best results in classifing images can be obtained using Python's library Keras. The problem is, you've been working with R your whole life and there is no time to learn Python now. Second, your coworkers have to be able to use your solution and since they are biologists, they know nothing about R or any other programming language. So what you need to do is to build an application in R which gives as good results as if it was built in Python, which can be used on different computers and which is pretty simple in deployment. All of the above at the same time. Seems impossible?
+You're a pretty good data scientist, so you don't give up that easily. You dig a little deeper and find a few names that will enable you to complete your task:
 
-There are a few names you need to be aware of first (I will expand upon them later):
+1. RSuite - an R package for reproducible projects with controlled dependencies and configuration. Apart from this, one of the biggest advantages of an RSuite project is the fact that it is really clearly written. Everyone is able to understand what's going on in particular parts of it due to the way how they are divided.
 
-1. RSuite - a great package for reproducible projects with controlled dependencies and configuration. Apart from this, one of the biggest advantages of an RSuite project is the fact that it is really clearly written. Everyone is able to understand what's going on in particular parts of it due to the way how they are divided.
+2. Reticulate - an R interface to Python which made all of it possible. Thanks to it, we can take the most of the two languages. It combines the power of R and Python, making machine learning the most accessible it's ever been.
 
-2. Keras - a powerful Python package which enables to build complicated machine learning models (in particular neural networks) with relatively little effort. It’s a great tool and if you don’t know or simply don’t like Python and prefer R instead, as for today there are three ways to use Keras package in R.
+3. Keras - a powerful Python package which enables to build complicated machine learning models (in particular neural networks) with relatively little effort. It’s a great tool and if you don’t know or simply don’t like Python and prefer R instead, as for today there are three ways to use Keras package in R.
 
-3. Reticulate - an R interface to Python which made all of it possible. Thanks to it, we can take the most of the two languages. It combines the power of R and Python, making machine learning the most accessible it's ever been.
-
-We will combine all of the above tools and build a Malaria Classifier. More specifically we will build a convolutional neural network detecting whether the patient is infected or not based on the image of the patient's drop of blood. Curious how to do it? Let's find out!
+You can combine all of the above tools and build a Malaria Classifier in R. More specifically, you are about to build a convolutional neural network detecting whether the patient is infected or not based on the image of the patient's drop of blood. 
+Lucky for you, I've already filfilled such task, so I will guide you through preparation and deployment of the project. I hope that after this tutorial you will be able to create similar solution all by yourself.
 
 
 ## Table of contents
 
 ## Shortcuts
 
-+ If you want to know the theory behind the project first, click [link to the second article]()
-+ If you are already familiar with RSuite and you just want to know how to use Python in an RSuite project, click [here](#creating-a-python-environment)
-+ If you don't want to create the project yourself, but you want to see how it works, click [here]()
 
 
 ## Preliminary requirements
@@ -43,19 +40,23 @@ To be able to recreate the case, your computer needs to be equipped with:
 - Miniconda [download here](https://docs.conda.io/en/latest/miniconda.html)
 - R Suite CLI [download here](https://rsuite.io/RSuite_Download.php)
 - Git [download here](https://git-scm.com/downloads)
+- Malaria Cell Images Dataset [download here](https://www.kaggle.com/iarunava/cell-images-for-detecting-malaria)
 
-I won't be describing the installation of R, RStudio and Miniconda in detail. There are many tutorials on the Internet which provide you with a step by step description. So take your time, install them properly and when everything is ready, you can move on to the next step - installing RSuite. I will help you with it, although there is nothing to fear - the installation is really easy.
+I won't be describing the installation of R, RStudio, Git and Miniconda in detail. There are many tutorials on the Internet which provide you with a step by step description. So take your time, install them properly and when everything is ready, you can move on to the next step - installing RSuite. I will help you with it, although there is nothing to fear - the installation is really easy.
 
 ## RSuite installation
 After downloading R Suite CLI you're ready to install it. The easiest way is to open the terminal and type:
 ```
 > rsuite install 
 ```
-in your console. When RSuite is installed, you need to download and install Git. RSuite forces you to use git, and while it may seem unnecessary to you at first, it's actually pretty useful. You don't want to lose all your work due to an unexpected system error, do you?
-When Git is installed on your computer, RSuite will automatically connect with it when starting a new project. Speaking of projects... How to create them? You'll learn it in a moment!
+in your console. When RSuite is installed, you need to download and install Git. RSuite forces you to use GIT, so you need to install it before starting a project.
+When Git is installed on your computer, RSuite will automatically put your project under git control when starting it. Speaking of projects... Everything's ready, so you're now able to build your first malaria classifier in R.
 
-## Creating a project
-There are three ways of managing projects in RSuite:
+## Malaria project step by step
+
+## Creating a project: MalariaClassifier
+
+First, we are going to create a new RSuite project. We will call it "MalariaClassifier". How to do it? There are three ways of managing projects in RSuite:
 
 - Command Line Interface
 - Using R functions
@@ -65,119 +66,112 @@ For me, the easiest option is the third one, so this is the one I'm going to des
 
 To create a new project, open RStudio and click Addins at the top of the page. What you will see should look like this:
 
-![Starting an RSuite project pt 1](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/Start_proj_1.png){width=750px}
+![Starting an RSuite project pt 1](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/Start_proj_1.png){width=750px}
 
 Then you need to click "Start project" and fill in the necessary blanks such as the name of the project and its directory:
 
-![Starting an RSuite project pt 2](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/Start_proj_2.png){width=300px}
+![Starting an RSuite project pt 2](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/MalariaClassifierprojstart.png){width=300px}
 
 
 Then you simply click "Start" and voilà! Your first RSuite project is created.
 
 Let's take a quick look at the structure of the project:
 
-![](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/proj_structure.png){width=300px}
+![Project Structure](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/projstr.png){width=300px}
 
 
 There are three extremely important folders there:
 
 1. Deployment - you will find two subfolders in here: libs and sbox. Libs is the folder where all packages which are needed to run your project are stored. Because of this you don't need to be afraid that somebody won't be able to open your project on their computer - every package they'll need to use will be installed automatically from this folder. Sbox is a folder where you store packages which only you need while creating a project. Let's say you want to plot something using ggplot2, but you don't need to include the plot in your project. Then you can install it locally, it will be stored in sbox and the person you've sent your project to, won't have it installed. To install a package in sbox, you just need to use a usual R function "install_packages()" in an RStudio console. Because you're in the project, it will be installed in sbox. As for how to install packages inside a project, we'll get to this later.
 
-2. Packages - this is where project packages are stored. Each of the packages should have different functionality so as to make the project clear and easy to understand. So for example one package is used for exploring and preparing the data, another is used for modelling it. In the packages, you don't store the main code. There, you just declare R packages needed for this particular part of the project (in the DESCRIPTION file) and define needed functions (in a subfolder named R).
+2. Packages - this is where project packages are stored. Each of the packages should have different functionality so as to make the project clear and easy to understand. So, for example, in our case one package is used for exploring and preparing the data, another is used for modelling it. In the packages, you don't store the main code. There, you just declare R packages needed for this particular part of the project (in the DESCRIPTION file) and define needed functions (in a subfolder named R).
 
 3. R - it's a folder where the masterscripts are stored. These are R Script documents whose aim is only to execute the code on the data. So firstly you define functions in packages, then you use them in master scripts. This way the code in a masterscript is short and easy to read. And if you want to learn more about the functions which were used there, you can always look them up in a documentation of the package!
 
-## Developing packages
-So, by now you're probably extremely curious how to create and develop a package in RSuite. Remember how we started a project? Just below "Start project" in Addins menu, you can see an instruction "Start package in project". Just click it and the rest is pretty intuitive. You need to name the package (best if the name corresponds to what the package does), the project folder will be set automatically to the project you're currently working on. Then click "Start" and your package is created.
+## Creating packages in project: DataPreparation
+
+We've created a project, it's time build in its first functionality. We are going to create a package called "DataPreparation". It will serve as a place in a project, where we will write functions needed to prepare the data for modelling. 
+How to create a package? Similarily to starting a project. Just below "Start project" in the Addins menu, you can see an instruction "Start package in project". Just click it and the rest is pretty intuitive. You need to name the package, the project folder will be set automatically to the project you're currently working on: 
+
+![DataPreparation package](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/DataPreppkg.png){width=300px}
+
+Then click "Start" and your package is created.
+
 Take look at the structure of your newly created package:
 
-![Package structure](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/pkg_structure.png){width=300px}
+![Project Structure](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/DataPrepstr.png){width=300px}
+
 
 Again, two important things here:
 
-1. R folder - this is where you should save the R Script files with the functions you'll be using later in masterscripts.
+1. DESCRIPTION file - this is where all important information is stored and the most important from all of them: the names of the R packages which you want to use in your project. You can declare which packages are needed in Imports.
 
-2. DESCRIPTION file - this is where all important information is stored and the most important from all of them: the names of the R packages which you want to use in your project. You can declare which packages are needed in Imports:
+Now we have to fill in our description. In our project, in the DESCRIPTION file of DataPreparation, we should import the following packages: 
 
-![Description file](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/description.png){width=300px}
+![DataPreparation DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/dataprepdesc.png){width=300px}
 
-The default in Imports is set only to logging. You can add your packages after a comma, just like I did with data.table. 
+The default in Imports is set only to logging. You can add your packages after a comma, just like I did. 
 
-After adding new packages to imports, you need to go back to Addins menu and click "Install dependencies". You'll know that everything was installed correctly when you see such message in your console:
+After adding new packages to Imports, you need to go back to Addins menu and click "Install dependencies". You'll know that everything was installed correctly when you see such message in your console:
 
 ![install_deps](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/install_deps.png){width=400px}
 
 After each dependencies installation, in order for them to work, you need to restart R session. It's like with any other actualisation - you need to restart the system so as to implement the changes.
 
-So, when you have all (at least for now) of the needed packages installed, you can start building your package. You'll probably want to add some functions which will be used later in the masterscripts. As I mentioned earlier, you need to have them in R files, saved in R folder in your package. So let's look at the example:
-
-![Example function](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/function.png){width=300px}
-
-This R script file is saved in my project package called "Example". Now, if I want to use it in my masterscript, I need to build this package first. I can do it using Addins command "Build packages" (I can do it, because all of the declared dependencies are installed. If you add some new dependencies, you need to install them before building a package). After clicking "Build" in a window which pops up, you should see something like this in your console:
-
-![Installed package](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/pkg_installed.png){width=400px}
-
-You have a package, a function, now you're ready to develop a masterscript!
-
-## Developing masterscripts
-
-So, each masterscript should be an R Script file (or Rmarkdown) where you execute your functions. When you go to R folder in the main folder of your project, you will find a file called "master.R". You have to copy everything what's inside it and place it at the beginning of every masterscript in your project. This is because this piece of code connects the packages with the masterscripts. 
-As I told you previously, all of the  masterscripts should be saved in R folder in your project. I will show you my examplary masterscript and explain why it looks like this. 
-
-![Masterscript](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/master.png){width=400px}
-
-The first 18 lines is this beginning of each masterscript I told you about. One thing to mention here: config file. At first in your project there is only config_templ.txt. After running the beginning of the script for the first time, config.txt pops up in your main project folder. And this two files are what it takes to make the project a little more interactive. Config.txt is for you. In my examplary project it looks like this:
-
-![Config.txt](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/config.png){width=400px}
-
-This is where you can declare paths to folders, names, numbers etc. But these are the things that don't have to, or sometimes can't, be same for two different computers. The person who receives your project has to declare the paths to folders themselves and basically they can declare anything else you want them to (you'll see later how I manipulated with the seize of the samples using config). So anything you add to your config file, should be briefly descripted in config_templ.txt. For example, my config_templ.txt looks like this:
-
-![Config_templ.txt](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/config_templ.png){width=400px}
-
-When it comes to your piece of code in a masterscript, one of the things you need to know is how to request packages that you build. It's nothing more than using a usual R functions: "library()" or "request()". Then, all of the functions from the loaded package are ready to use! 
-Another important thing: try to avoid requiring packages which aren't project packages in the masterscripts. Declare them in the description file in one of the packages, and you can use them as usual calling your built-in package. You can even build a special package dedicated to installing dependencies you need. This way you can be sure that even if there have been some updates to the packages, erverything will run properly. 
-
-I think that by now you know how to build and develop an RSuite project. I can give you one more tip, though. While developing a project, you may want to see how your newly created functions work, what results they give. Instead of clicking "Build packages" all the time, you can use a simple command from devtools package:
-
-```
-devtools::load_all(file.path(script_path, "..", "packages", "name_of_the_package"))
-```
-
-Thanks to doing so, you can try out all of the newly created functions without building packages all the time. Although you have to remember to build packages before finishing the project - the changes which load_all() commits are local, they won't be present after zipping your project. 
+2. R folder - this is where you should save the R Script files with the functions you'll be using later in masterscripts. We will get to this later.
 
 
-##Zipping
+Now we have a package, where we will prepare images for further modelling. That's why we can add second functionality - modelling.
 
-After finishing your project, you may want to save its current version. Thanks to it you'll be able to develop your work without loosing the possibility to start from the point you left. In order to do it, choose "Build ZIP" from the Addins menu. It will require to specify the version of your project. You have to type it and the rest is done automatically.
+## Creating packages in project: MalariaModel
 
-Inside a ZIP file, you'll find, among others:
+We need to build another package in project. We will call it "MalariaModel" and use it to write modelling functions. We will follow exactly the same steps as before with DataPreparation package.
 
-- R - a folder where the masterscripts are stored
-- libs - a folder with the packages
-- logs - a folder for logs
-- config_templ.txt - a file which you have to fill properly
+So what we need to do first, is to go to Addins menu and to click "Start package in project":
 
-Now you know everything about RSuite projects. There's nothing left for me than to show you how to use combine R and Python in an RSuite project!
+![MalariaModel package](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/MalariaModel.png){width=300px}
 
-## Creating a Python environment
+After creating a new package, we need to add a few imports in the package's DESCRIPTION file:
 
-I will describe what you need to do to create a local Python environment inside an RSuit project. If you want to know how to do it from the console, please click [here](https://www.slideshare.net/WLOGSolutions/how-to-lock-a-python-in-a-cage-managing-python-environment-inside-an-r-project). My description will be slightly different than presented there, co you can choose the preferred method.  
+![MalariaModel DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/MalariaModeldesc.png){width=300px}
 
-When you have installed conda on your computer, you're halfway to create a local Python environment. We can divide the whole process into a few steps, so that it would be more clear:
+We added new dependencies, now we need to install them. In order to do it, go to Addins menu and click "Install dependencies".
+When all dependencies are successfully installed, restart R session so as to save changes. 
 
-1. Add system requirements to one of the existing packages. 
-In one of the packages in the description file, require conda as well as needed Python's packages. It should look like this (of course the packages are examplary): 
+## Adding a new folder in project: Work
+
+Because you want to build a model, then score it and, in addition to it, the whole code will be executed on server, you need to save the results somewhere. The best option is to create a new folder inside a project. It won't be seen by your coworkers unless you specify it in PARAMETERS, so it's the best method to store the results in one place. 
+
+To create a folder, click a "New folder" icon in your project menu on the right side of the screen in RStudio:
+
+![New folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/newfolder.png)
+
+A new window will pop up, asking you to name the folder:
+
+![New folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/newfolder2.png)
+
+After creating it, please copy .gitignore file there. This is because GIT doesn't allow you to store empty folders. Now, the content of the Work folder is supposed to have this structure:
+
+![New folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/gitignore.png)
+
+## Creating Python environment
+
+In order to use Keras in R, you need to create a local Python environment inside an RSuit project. If you want to know how to do it from the console, please click [here](https://www.slideshare.net/WLOGSolutions/how-to-lock-a-python-in-a-cage-managing-python-environment-inside-an-r-project). My description will be slightly different than presented there, so you can choose the preferred method.  
+
+When you have installed conda on your computer, you're halfway to create a local Python environment. We will do it in 3 steps:
+
+1. Add system requirements to DataPreparation package. 
+In DataPreparation package, in the DESCRIPTION file, require conda as well as all of the needed Python's packages. It should look as follows: 
 
 ![System requirements](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/sysreqs.png){width=400px}
 
-You can require specific versions of the needed packages using "=", "<", ">", ">=", "<=" operators and the number of the required version.
-
-2. Then, you need to install the requirements. For this open a new terminal (from RStudio -> Tools -> Terminal -> New Terminal) and type:
-
+2. Install the requirements.
+For this open a new terminal (from RStudio -> Tools -> Terminal -> New Terminal) and type:
 ```
 > Rsuite sysreqs install
 ```
-3. When the installation is completed, you have to "force" your project to use local Python. You can do it by typing
+3. Force your project to use local Python. 
+You can do it by typing
 ```
 reticulate::use_python(python = dirname(...), require = TRUE)
 ```
@@ -185,85 +179,69 @@ in your masterscript (just after the beginning).
 
 And... That's it! You can now use Keras in it's full power. 
 
-## Ways to use Keras in R
+Since we have the framework of our Malaria Classifier project, we can move on to developing our packages now.
 
-Basically there are three ways of using Keras in R:
+## Developing packages in project: DataPreparation
 
-1. Keras R package. It follows R syntax, so it's most natural for R users. It still uses reticulate and runs Python under the hood, though.
+We need to create a new RScript file (RStudio menu -> File -> New file -> R Script), where we will write all of the functions needed for preparing the images for modelling. We are going to name the file "data_prep.R". The content of the file you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/packages/DataPreparation/R/data_prep.R). Make sure you save it in DataPreparation's folder R. Take a look on how the beginning of the file is supposed to look like:
 
-2. Reticulate interface. It carries out a conversion between Python and R. 
+![data_prep file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/data_prep.png){width=300px}
 
-3. Running raw Python. It's handy when you already have some script in Python, but it's hard to control Python script execution from R.
+When you have all (at least for now) of the needed dependencies installed, and you created "data_prep.R" file, in order to use DataPreparation package, you have to build it first. You can do it by going to Addins menu and clicking "Build Packages". A new window will pop up:
 
-In my project, I used the first option, so in a moment you will see how it works. There is nothing left to do than to create your first Malaria Classifier using R and RSuite!
+![data_prep file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/build.png){width=300px}
 
-## The Malaria project step by step
+Click "Build" and if everything has worked correctly, you should see a following message in your console:
 
-I will guide you through the creation of the project step by step. There are two things that I strongly recommend to do first, though:
+![data_prep file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/1pkginst.png){width=300px}
 
-+ Click [here - link to the whole project on github]() and take a look at the structure of the project. See what is inside each of the folders - it will be easier for you to understand what we will be doing while creating the project.
-+ Click [here - link to the second article]() and read about the theory behind the project - you will know what particular functions do and why I chose to use them. It will help you understand the project more. 
+## Developing packages in project: MalariaModel
 
-To create exactly the same Malaria Classifier I built, follow these steps:
+We need to add another RScript file, where all of our modelling functions will be stored. We will call it "api_modelling.R".
+The content of the file you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/packages/MalariaModel/R/api_modelling.R).
+Remember to save the file in R folder in MalariaModel package. Take a look at the first lines of the code:
 
-1. Create an RSuite project called Malaria_CNN
-2. Add package: DataPreparation
-3. Add dependencies: all needed dependencies you can see on the screenshot below
-4. Install dependencies
+![MalariaModel DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/api_modelling.png){width=300px}
 
-![Steps 1 - 4](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/first_four.jpg)
+The next step is to build the package. Again, go to Addins menu and choose "Build packages". When everything has been installed correctly, you should see this message:
 
-5. Add package: modeling
-6. Add dependencies: all needed dependencies you can see on the screenshot below
-7. Install dependencies
+![MalariaModel DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/2pkginst.png){width=300px}
 
-![Steps 5 - 7](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/second_three.jpg)
+We have all of the needed packages, time to create a file, where we will use them.
 
-8. Add system requirements to the DESCRIPTION file of one of the existing packages
-9. Install system requirements
+## Creating and developing a masterscript: m_model.R
 
+We need to create a new RScript file called "m_model.R". We will train our model there. Because it is a masterscript, will save it in R folder in our MalariaClassifier project. The content of the masterscript, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_model.R). 
 
-![Steps 8 - 9](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/third_two.jpg)
+## Creating and developing a masterscript: m_score.R
 
+The next step is to create the second masterscript, called "m_score.R". As the name suggests, this is where we will evaluate the model trained in "m_model.R". Again, we will save it in R folder in MalariaClassifier project. The content of the script, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_score.R). 
 
-10. Develop DataPreparation package.
-    i. Create a new RScript file and name it "data_prep". Save it in the package DataPreparation in a folder named "R". 
-    ii. Copy the content of data_prep from [link to data_prep file](link to data_prep file)
-    iii. Build packages
-11. Develop modeling package
-    i. Create a new RScript file and name it "api_modelling". Save it in the package modeling in a folder named "R"
-    ii. Copy the content of modeling file from [link to modeling file](link to modeling file)
-    iii. Build packages  
-12. Set the config.txt file. Add paths to the needed folders and the numbers of samples for each group
-13. Set the config_templ.txt file. Describe what you did in the config.txt file
-14. Create and develop a masterscript
-    i. Create a new RScript file and name it "m_model". Save it in a folder named "R" in your project.
-    ii. Copy the content of the masterscript from [link to the masterscript](link to the masterscript)
-    iii. Run the file. 
-15. (OPTIONAL) Create a ZIP file
+## config.txt and config_templ.txt file
 
-## How to unzip the project - configuration
+Before being able to run your masterscripts successfully, you need to take care of setting two files: config_templ.txt and cofig.txt.
 
-If you've just built your own Malaria Classifier, you can skip this section. For those, who haven't:
+Config_templ.txt is a file where you briefly describe what should be included in config.txt. You should fill it in as follows:
 
-Under this [link](link to a zipped file) you can find a zipped RSuite project containing Malaria Clasiffier. Download it to your computer and do as follows:
+![Config_templ.txt](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/configtempl.png){width=300px}
 
-1. Unzip the project. You will see three folders: libs, logs and R and the config_templ.txt file.
-2. Set the config_templ.txt file. It should consist of:
+This is very important, because this is what your coworkers will get and that's how they will know what they should write in config.txt file. 
 
-![config_templ](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/configtmpl.png)
+Config.txt file is where you declare paths to folders, number of samples etc. At first there is no such file in your project folder, it will appear after running the beginning of your masterscript code:
 
-Where letters m-r indicate which photos should be taken to each of the datasets. So images 1-m (from each category, parasitized and uninfected) are training samples, n-o are validation samples and p-r are testing samples.
+![Masterscript beginning](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/masterbegin.png){width=300px}
 
-To give you an example, my config file looks like this:
+After running the code, open config.txt file which appeared in MalariaClassifier project folder and fill it similarily to mine:
 
-![my config](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/confignew.png)
+![Config.txt](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/config.png){width=300px}
 
-3. In R folder, you will find "m_model.R" file. Open it and run in RStudio. Don't worry if it takes a long time to build the model - the time needed depends on the system you use.
-4. After the model has been built, you can find it in the folder which you declared under "new_folder_path" in the config_templ.txt. You can use it anytime you want calling "loadModel()" function from the "modeling" package. 
+Of course all of the paths to folders are supposed to be the paths to folders where YOU store your data.  
 
-## Summary
+## Running the project
 
-This is all I wanted to teach you for now. If you're interested in learning more about machine learning in RSuite projects, check the following links:
+So now we have everything we need to build a malaria classifier in R. The only thing you need to do, is to run both of the masterscripts: first "m_model.R", then "m_score.R". Don't worry if it takes a while to train your model - the amount of time needed depends on the hardware you use. When you installed everything you needed properly and declared the paths to folders as you were supposed to, after executing the whole code, this should appear in your Work folder:
 
-+ Links to other projects
+<screenshot of the work folder>
+
+## Deployment
+
