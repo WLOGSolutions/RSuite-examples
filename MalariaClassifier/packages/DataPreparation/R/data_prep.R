@@ -160,13 +160,17 @@ getAllImages <- function(new_data_path, folder_name){
 #'@return A list of data tensors and data lables.
 
 #'@export
-convertSamples <- function(tensors, labels, n){
-  #reshape arrays
-  tensors <- array_reshape(tensors, c(n, 150, 150, 3))
-  #normalize pixel intensities
-  tensors <- tensors/255
-  #convert lables
-  labels <- c(rep(1, 0.5*n), rep(0, 0.5*n))
-  return(list(data_tensor=tensors, labels=labels))
+convertSamples <- function(dataset) {
+    n <- length(dataset$labels)
+                                        #reshape arrays
+    tensors <- array_reshape(dataset$data_tensor, c(n, 150, 150, 3))
+                                        #normalize pixel intensities
+    tensors <- tensors / 255
+                                        #convert lables
+    labels <- c(rep(1, 0.5 * n), rep(0, 0.5 * n))
+    
+    return(list(
+        data_tensor = tensors,
+        labels = dataset$labels))
 
 }
