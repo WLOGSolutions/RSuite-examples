@@ -305,7 +305,7 @@ This should execute the code from the masterscript "m_score.R". After everything
 
 Take a quick look on how the content of MalariaClassifier folder presents itself now:
 
-[ZIP after](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/zipafter.png)
+![ZIP after](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/zipafter.png)
 
 As you can see, there is one new folder - sbox. This is in case we require any packages in the masterscripts using R "library()" function - we load it only locally then. There is a new file too - config.txt. Its content was automatically copied from config_templ.txt.
 
