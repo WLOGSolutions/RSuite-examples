@@ -28,14 +28,17 @@ if (grepl("darwin|linux-gnu", R.version$os)) {
 }
 
 
-library(magrittr)
-library(DataPreparation)
-library(MalariaModel)
+suppressPackageStartupMessages({
+  library(magrittr)
+  library(DataPreparation)
+  library(MalariaModel)
+})
 
+#-----------------------------------------------------------------------------------------------
 
 session_id <- args$get(name = "session_id", required = TRUE)
 
-model <- MalariaModel::loadModel(config$model_path)
+model <- MalariaModel::loadModel(config$new_folder_path, session_id)
 
                                         #3) MODEL TESTING
 
@@ -53,13 +56,14 @@ evaluation <- MalariaModel::evaluateModel(model,
 
 #Save model evaluation into a .csv file
 
-MalariaModel::saveModelEvaluation(evaluation, config$new_folder_path)
+MalariaModel::saveModelEvaluation(dt = evaluation,
+                                  config$new_folder_path,
+                                  session = session_id)
 
 #Predict classes of the test samples and the probability of each sample belonging to the predicted class
 
 predictions <- MalariaModel::predictClassesAndProbabilities(model,
-                                                            test_data$data_tensor,
-                                                            config$new_folder_path)
+                                                            test_data$data_tensor)
 
 #Save predictions into a .csv file
 

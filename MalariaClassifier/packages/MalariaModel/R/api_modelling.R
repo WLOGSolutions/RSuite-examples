@@ -28,7 +28,7 @@ createModel <- function (){
 #' @param model A compiled keras model object.
 #' @return A history object which is a record of training loss values and metrics values at succesive epochs as well as validation loss values and validation metrics values.
 #' @export
-trainModel <- function(model, epochs = 30, batch_size = 100) {
+trainModel <- function(model, epochs = 2, batch_size = 100) {
 
   model %>% fit(train_data$data_tensor,
                 train_data$labels,
@@ -63,8 +63,8 @@ saveModel <- function(model, save_path, session) {
 #' @param f_path A path to the model.
 #' @return A keras model object.
 #' @export
-loadModel <- function(f_path){
-  keras::load_model_hdf5(file.path(f_path))
+loadModel <- function(f_path, session){
+  keras::load_model_hdf5(file.path(f_path, sprintf("work %s", as.character(session)), "my_model"))
 }
 
 #'Evaluate the trained model based on the test dataset and save the results in a work folder.
@@ -85,8 +85,8 @@ evaluateModel <- function(model, test_data, test_labels){
 #'@param f_path A path to the folder where the evaluation statistics are supposed to be saved.
 #'@return A .csv file called "evaluation_statistics".
 #'@export
-saveModelEvaluation <- function(dt, f_path){
-  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session_id)), "evaluation_statistics"))
+saveModelEvaluation <- function(dt, f_path, session){
+  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), "evaluation_statistics"))
 }
 
 #' Predict classes and probabilities of belonging to the predicted class for the testing samples using a trained model.

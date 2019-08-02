@@ -6,6 +6,8 @@ export(evaluateModel)
 export(loadModel)
 export(predictClassesAndProbabilities)
 export(saveModel)
+export(saveModelEvaluation)
+export(savePredictions)
 export(trainModel)
 import(logging)
 
