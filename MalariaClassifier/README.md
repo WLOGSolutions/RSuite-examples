@@ -108,9 +108,6 @@ Let's take a quick look at the structure of the project:
 
 There are three extremely important folders there:
 
-<<<<<<< HEAD
-1. Deployment - you will find two subfolders in here: libs and sbox. Libs is the folder where all packages which are needed to run your project are stored. Because of this you don't need to be afraid that somebody won't be able to open your project on their computer - every package they'll need to use will be installed automatically from this folder. Sbox is a folder where you store packages which only you need while creating a project. Let's say you want to plot something using ggplot2, but you don't need to include the plot in your project. Then you can install ggplot2 locally, it will be stored in sbox and the person you've sent your project to, won't have it installed. To install a package in sbox, you just need to use a usual R function "install_packages()" in an RStudio console. Because you're in the project, it will be installed in sbox. As for how to install packages inside a project, we'll get to this later.
-=======
 1. **Deployment** - you will find two subfolders in here: libs and sbox. Libs is the folder where all packages which are needed to run your project are stored. Because of this you don't need to be afraid that somebody won't be able to open your project on their computer - every package they'll need to use will be installed automatically from this folder. Sbox is a folder where you store packages which only you need while creating a project. Let's say you want to plot something using ggplot2, but you don't need to include the plot in your project. Then you can install it locally, it will be stored in sbox and the person you've sent your project to, won't have it installed. To install a package in sbox, you just need to use a usual R function "install_packages()" in an RStudio console. Because you're in the project, it will be installed in sbox. As for how to install packages inside a project, we'll get to this later.
 >>>>>>> 0c2ced25f9bf50e0bd039292aa2f0cb29a7e1fb3
 
@@ -123,9 +120,6 @@ There are three extremely important folders there:
 We've created a project, it's time build in its first functionality. We are going to create a package called "DataPreparation". It will serve as a place in a project, where we will write functions needed to prepare the data for modelling. 
 How to create a package? Similarily to starting a project. Just below "Start project" in the Addins menu, you can see an instruction "Start package in project". Just click it and the rest is pretty intuitive. You need to name the package, the project folder will be set automatically to the project you're currently working on: 
 
-<<<<<<< HEAD
-![DataPreparation package](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/DataPreppkg.png)
-=======
 ![DataPreparation package](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/DataPreppkg.png) 
 >>>>>>> 0c2ced25f9bf50e0bd039292aa2f0cb29a7e1fb3
 
@@ -133,9 +127,6 @@ Then click "Start" and your package is created.
 
 Take look at the structure of your newly created package:
 
-<<<<<<< HEAD
-![Project Structure](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/DataPrepstr.png)
-=======
 ![Project Structure](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/DataPrepstr.png) 
 >>>>>>> 0c2ced25f9bf50e0bd039292aa2f0cb29a7e1fb3
 
@@ -146,9 +137,6 @@ Again, two important things here:
 
 Now we have to fill in our description. In our project, in the DESCRIPTION file of DataPreparation, we should import the following packages: 
 
-<<<<<<< HEAD
-![DataPreparation DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/dataprepdesc.png)
-=======
 ![DataPreparation DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/dataprepdesc.png) 
 >>>>>>> 0c2ced25f9bf50e0bd039292aa2f0cb29a7e1fb3
 
@@ -156,10 +144,8 @@ The default in Imports is set only to logging. You can add your packages after a
 
 After adding new packages to Imports, you need to go back to Addins menu and click "Install dependencies". You'll know that everything was installed correctly when you see such message in your console:
 
-<<<<<<< HEAD
 ![install_deps](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/install_deps.png)
 =======
-![install_deps](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/install_deps.png) 
 >>>>>>> 0c2ced25f9bf50e0bd039292aa2f0cb29a7e1fb3
 
 After each dependencies installation, in order for them to work, you need to restart R session. It's like with any other actualisation - you need to restart R session in R Studio so as to implement the changes.
@@ -178,9 +164,6 @@ So what we need to do first, is to go to Addins menu and to click "Start package
 
 After creating a new package, we need to add a few imports in the package's DESCRIPTION file:
 
-<<<<<<< HEAD
-![MalariaModel DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/MalariaModeldesc.png)
-=======
 ![MalariaModel DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/MalariaModeldesc.png) 
 >>>>>>> 0c2ced25f9bf50e0bd039292aa2f0cb29a7e1fb3
 
@@ -214,8 +197,7 @@ In DataPreparation package, in the DESCRIPTION file, require conda as well as al
 
 <<<<<<< HEAD
 ![System requirements](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/sys_reqs.png)
-=======
-![System requirements](/Users/urszulabialonczyk/Documents/Wlog/Images_for_description/sysreqs.png) 
+
 >>>>>>> 0c2ced25f9bf50e0bd039292aa2f0cb29a7e1fb3
 
 2. Install the requirements.
@@ -246,21 +228,11 @@ Since we have the framework of our Malaria Classifier project, we can move on to
 
 We need to create a new RScript file (RStudio menu -> File -> New file -> R Script), where we will write all of the functions needed for preparing the images for modelling. We are going to name the file "data_prep.R". The content of the file you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/packages/DataPreparation/R/data_prep.R). Make sure you save it in DataPreparation's folder R. Take a look on how the beginning of the file is supposed to look like:
 
-<<<<<<< HEAD
-![data_prep file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/data_prep.png)
-=======
 ![data_prep file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/data_prep.png) 
 >>>>>>> 0c2ced25f9bf50e0bd039292aa2f0cb29a7e1fb3
 
 When you have all (at least for now) of the needed dependencies installed, and you created "data_prep.R" file, in order to use DataPreparation package in the masterscripts, you have to build it first. You can do it by going to Addins menu and clicking "Build Packages". A new window will pop up:
 
-<<<<<<< HEAD
-![data_prep file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/build.png)
-
-Click "Build" and if everything has worked correctly, you should see a following message in your console:
-
-![data_prep file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/1pkginst.png)
-=======
 ![data_prep file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/build.png) 
 
 Click "Build" and if everything has worked correctly, you should see a following message in your console:
@@ -274,13 +246,6 @@ We need to add another RScript file, where all of our modelling functions will b
 The content of the file you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/packages/MalariaModel/R/api_modelling.R).
 Remember to save the file in R folder in MalariaModel package. Take a look at the first lines of the code:
 
-<<<<<<< HEAD
-![MalariaModel DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/api_modelling.png)
-
-The next step is to build the package. Again, go to Addins menu and choose "Build packages". When everything has been installed correctly, you should see this message:
-
-![MalariaModel DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/2pkginst.png)
-=======
 ![MalariaModel DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/api_modelling.png) 
 
 The next step is to build the package. Again, go to Addins menu and choose "Build packages". When everything has been installed correctly, you should see this message:
@@ -304,8 +269,6 @@ Before being able to run your masterscripts successfully, you need to take care 
 
 Config_templ.txt is a file where you briefly describe what you include in config.txt. You should fill it in as follows:
 
-<<<<<<< HEAD
-![Config_templ.txt](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/configtempl.png)
 =======
 ![Config_templ.txt](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/configtempl.png) 
 >>>>>>> 0c2ced25f9bf50e0bd039292aa2f0cb29a7e1fb3
@@ -314,9 +277,6 @@ This is very important, because this is the file your coworkers will get. They w
 
 Config.txt file is where you declare paths to folders, number of samples etc. At first there is no such file in your project folder, it will appear after running the beginning of your masterscript code:
 
-<<<<<<< HEAD
-![Masterscript beginning](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/masterbegin.png)
-=======
 ![Masterscript beginning](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/masterbegin.png) 
 >>>>>>> 0c2ced25f9bf50e0bd039292aa2f0cb29a7e1fb3
 
