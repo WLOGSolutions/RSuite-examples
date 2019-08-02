@@ -68,4 +68,6 @@ session_id <- Sys.time()
 
 #Save the model
 
-MalariaModel::saveModel(model, config$new_folder_path, session=session_id)
+MalariaModel::saveModel(model, config$models_folder_path, session=session_id)
+
+

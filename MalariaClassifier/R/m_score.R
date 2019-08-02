@@ -36,9 +36,8 @@ suppressPackageStartupMessages({
 
 #-----------------------------------------------------------------------------------------------
 
-session_id <- args$get(name = "session_id", required = TRUE)
 
-model <- MalariaModel::loadModel(config$new_folder_path, session_id)
+model <- MalariaModel::loadModel(config$models_folder_path, config$session_id)
 
                                         #3) MODEL TESTING
 
@@ -58,7 +57,7 @@ evaluation <- MalariaModel::evaluateModel(model,
 
 MalariaModel::saveModelEvaluation(dt = evaluation,
                                   config$new_folder_path,
-                                  session = session_id)
+                                  session = config$session_id)
 
 #Predict classes of the test samples and the probability of each sample belonging to the predicted class
 
@@ -69,6 +68,7 @@ predictions <- MalariaModel::predictClassesAndProbabilities(model,
 
 MalariaModel::savePredictions(dt = predictions,
                               config$new_folder_path,
-                              session = session_id)
+                              session = config$session_id,
+                              number=config$prediction_id)
 
 

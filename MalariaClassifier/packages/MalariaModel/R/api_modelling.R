@@ -47,14 +47,8 @@ trainModel <- function(model, epochs = 2, batch_size = 100) {
 #' @export
 saveModel <- function(model, save_path, session) {
 
-  work_path <- file.path(save_path, sprintf("work %s", as.character(session)))
-
-  if(!dir.exists(work_path)){
-    dir.create(work_path)
-  }
-
-  model_name <- "my_model"
-  model_fpath <- file.path(work_path, model_name)
+  model_name <- sprintf("model %s", as.character(session))
+  model_fpath <- file.path(save_path, model_name)
   keras::save_model_hdf5(model, model_fpath)
 
 }
@@ -63,8 +57,8 @@ saveModel <- function(model, save_path, session) {
 #' @param f_path A path to the model.
 #' @return A keras model object.
 #' @export
-loadModel <- function(f_path, session){
-  keras::load_model_hdf5(file.path(f_path, sprintf("work %s", as.character(session)), "my_model"))
+loadModel <- function(models_f_path, session){
+  keras::load_model_hdf5(file.path(models_f_path, sprintf("model %s", as.character(session))))
 }
 
 #'Evaluate the trained model based on the test dataset and save the results in a work folder.
@@ -86,6 +80,13 @@ evaluateModel <- function(model, test_data, test_labels){
 #'@return A .csv file called "evaluation_statistics".
 #'@export
 saveModelEvaluation <- function(dt, f_path, session){
+
+  work_path <- file.path(f_path, sprintf("work %s", as.character(session)))
+
+  if(!dir.exists(work_path)){
+    dir.create(work_path)
+  }
+
   data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), "evaluation_statistics"))
 }
 
@@ -107,6 +108,13 @@ predictClassesAndProbabilities <- function(model, test_data){
 #'@param f_path A path to the folder where predictions are supposed to be saved.
 #'@return A .csv file called "predictions".
 #'@export
-savePredictions <- function(dt, f_path, session){
-  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), "predictions"))
+savePredictions <- function(dt, f_path, session, number){
+
+  work_path <- file.path(f_path, sprintf("work %s", as.character(session)))
+
+  if(!dir.exists(work_path)){
+    dir.create(work_path)
+  }
+
+  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), sprintf("predictions %s", as.character(number))))
 }

@@ -2,5 +2,5 @@ RSuiteVersion: 0.37.253
 RVersion: 3.6
 Project: MalariaClassifier
 Repositories: MRAN[2019-07-29]
-Artifacts: config_templ.txt, conda
+Artifacts: config_templ.txt, Models, conda
 ZipVersion: 0.1
