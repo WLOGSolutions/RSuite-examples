@@ -1,9 +1,4 @@
----
-title: Building a Malaria Classifier from scratch using R and R Suite
-author: "Urszula Bialonczyk"
-date: "7/25/2019"
-output: html_document
----
+# Building a Malaria Classifier from scratch using [R](https://r-project.org), [R Suite](https://rsuite.io) and [R Interface to Keras](https://keras.rstudio.com/)
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
@@ -24,11 +19,13 @@ output: html_document
     - [Creating and developing a masterscript: m_score.R](#creating-and-developing-a-masterscript-mscorer)
     - [config.txt and config_templ.txt file](#configtxt-and-configtempltxt-file)
     - [Running the project](#running-the-project)
-    - [Deployment](#deployment)
+    - [Deployment: building deployment package](#deployment-building-deployment-package)
+    - [Deployment: installing deployment package](#deployment-installing-deployment-package)
+    - [Summary](#summary)
 
 <!-- markdown-toc end -->
 
-# Introduction #
+## Introduction ##
 
 Imagine you're a data scientist working in a science lab. One day you are asked to analise some data involving malaria and the results you obtain are horrifying: the number of people affected by this disease has started to raise dramatically over the past few months. You know nothing about biology, so you can't help with curing it, but you're good at detecting patterns, so you may be able to build a model which recognises wether a person is infected or not. You ask around a little and you learn that to check the patient's health status, the first step is to analise their drop of blood. This is a quite good information, because you know that to classify images you need to bulild a convolutional neural network. You encounter two problems, though. First, you know that the best results in classifing images can be obtained using Python's library Keras. The problem is, you've been working with R your whole life and there is no time to learn Python now. Second, your coworkers have to be able to use your solution and since they are biologists, they know nothing about R or any other programming language. So what you need to do is to build an application in R which gives as good results as if it was built in Python, which can be used on different computers and which is pretty simple in deployment. All of the above at the same time. Seems impossible?
 You're a pretty good data scientist, so you don't give up that easily. You dig a little deeper and find a few names that will enable you to complete your task:
@@ -43,7 +40,7 @@ You can combine all of the above tools and build a Malaria Classifier in R. More
 
 Lucky for you, I've already fulfilled such task, so I will guide you through preparation and deployment of the project. I hope that after this tutorial you will be able to create similar solution all by yourself.
 
-# Preliminary requirements #
+## Preliminary requirements ##
 
 This particular project was created on MacOS however all of the needed tools are also available for Windows and Linux.  To be able to recreate the case, your computer needs to be equipped with:
 
@@ -56,7 +53,7 @@ This particular project was created on MacOS however all of the needed tools are
 
 I won't be describing the installation of R, RStudio, Git and Miniconda in detail. There are many tutorials on the Internet which provide you with a step by step description. So take your time, install them properly and when everything is ready, you can move on to the next step - installing RSuite. I will help you with it, although there is nothing to fear - the installation is really easy.
 
-## RSuite installation ##
+### RSuite installation ###
 
 After downloading R Suite CLI and installing you're ready to install R Suite package. The easiest way is to open the terminal and type:
 
@@ -66,13 +63,13 @@ After downloading R Suite CLI and installing you're ready to install R Suite pac
 in your console. When RSuite is installed, you need to download and install Git. RSuite forces you to use GIT, so you need to install it before starting a project.
 When Git is installed on your computer, RSuite will automatically put your project under GIT control when starting it. Speaking of projects... Everything's ready, so you're now able to build your first malaria classifier in R.
 
-## Git installation ##
+### Git installation ###
 
 When R Suite is installed, you need to download and install Git. RSuite forces you to use GIT, so you need to install it before starting a project. When Git is installed on your computer, RSuite will automatically put your project under git control when starting it. Speaking of projects... Everything's ready, so you're now able to build your first malaria classifier in R.
 
-# Malaria project step by step #
+## Malaria project step by step ##
 
-## Creating a R Suite project: MalariaClassifier ##
+### Creating a R Suite project: MalariaClassifier ###
 
 First, we are going to create a new RSuite project. We will call it "MalariaClassifier". How to do it? There are three ways of managing projects in RSuite:
 
@@ -104,7 +101,7 @@ There are three extremely important folders there:
 
 3. **R** - it's a folder where the masterscripts are stored. These are R Script documents whose aim is only to execute the code on the data. So firstly you define functions in packages, then you use them in master scripts. This way the code in a masterscript is short and easy to read. And if you want to learn more about the functions which were used there, you can always look them up in a documentation of the package!
 
-## Creating packages in project: DataPreparation
+### Creating packages in project: DataPreparation ###
 
 We've created a project, it's time build in its first functionality. We are going to create a package called "DataPreparation". It will serve as a place in a project, where we will write functions needed to prepare the data for modelling. 
 How to create a package? Similarily to starting a project. Just below "Start project" in the Addins menu, you can see an instruction "Start package in project". Just click it and the rest is pretty intuitive. You need to name the package, the project folder will be set automatically to the project you're currently working on: 
@@ -137,7 +134,7 @@ After each dependencies installation, in order for them to work, you need to res
 
 Now we have a package, where we will prepare images for further modelling. That's why we can add second functionality - modelling.
 
-## Creating packages in project: MalariaModel
+### Creating packages in project: MalariaModel ###
 
 We need to build another package in project. We will call it "MalariaModel" and use it to write modelling functions. We will follow exactly the same steps as before with DataPreparation package.
 
@@ -152,7 +149,7 @@ After creating a new package, we need to add a few imports in the package's DESC
 We added new dependencies, now we need to install them. In order to do it, go to Addins menu and click "Install dependencies".
 When all dependencies are successfully installed, restart R session so as to save changes. 
 
-## Adding a new folder in project: Work
+### Adding a new folder in project: Work ###
 
 Because you want to build a model, then score it and, in addition to this, the whole code will be executed on server, you need to save the results somewhere. The best option is to create a new folder inside a project. It won't be seen by your coworkers unless you specify it in PARAMETERS, so it's the best method to store the results in one place. 
 
@@ -168,7 +165,7 @@ After creating it, please copy .gitignore file there. This is because GIT doesn'
 
 ![New folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/gitignore.png)
 
-## Creating Python environment
+### Creating Python environment ###
 
 In order to use Keras in R, you need to create a local Python environment inside an RSuit project. If you want to know how to do it from the console, please click [here](https://www.slideshare.net/WLOGSolutions/how-to-lock-a-python-in-a-cage-managing-python-environment-inside-an-r-project). My description will be slightly different than presented there, so you can choose the preferred method.  
 
@@ -202,7 +199,7 @@ And... That's it! You can now use Keras in it's full power.
 
 Since we have the framework of our Malaria Classifier project, we can move on to developing our packages now.
 
-## Developing packages in project: DataPreparation
+### Developing packages in project: DataPreparation ###
 
 We need to create a new RScript file (RStudio menu -> File -> New file -> R Script), where we will write all of the functions needed for preparing the images for modelling. We are going to name the file "data_prep.R". The content of the file you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/packages/DataPreparation/R/data_prep.R). Make sure you save it in DataPreparation's folder R. Take a look on how the beginning of the file is supposed to look like:
 
@@ -216,7 +213,7 @@ Click "Build" and if everything has worked correctly, you should see a following
 
 ![data_prep file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/1pkginst.png) 
 
-## Developing packages in project: MalariaModel
+### Developing packages in project: MalariaModel ###
 
 We need to add another RScript file, where all of our modelling functions will be stored. We will call it "api_modelling.R".
 The content of the file you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/packages/MalariaModel/R/api_modelling.R).
@@ -230,15 +227,15 @@ The next step is to build the package. Again, go to Addins menu and choose "Buil
 
 We have all of the needed packages, time to create files, where we will use them.
 
-## Creating and developing a masterscript: m_model.R
+### Creating and developing a masterscript: m_model.R ###
 
 We need to create a new RScript file called "m_model.R". We will train our model there. Because it is a masterscript, will save it in R folder in our MalariaClassifier project. The content of the masterscript, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_model.R). 
 
-## Creating and developing a masterscript: m_score.R
+### Creating and developing a masterscript: m_score.R ###
 
 The next step is to create the second masterscript, called "m_score.R". As the name suggests, this is where we will evaluate the model trained in "m_model.R". Again, we will save it in R folder in MalariaClassifier project. The content of the script, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_score.R). 
 
-## config.txt and config_templ.txt file
+### config.txt and config_templ.txt file ###
 
 Before being able to run your masterscripts successfully, you need to take care of setting two files: config_templ.txt and cofig.txt.
 
@@ -259,13 +256,13 @@ After running the code, open config.txt file which appeared in MalariaClassifier
 
 Of course all of the paths to folders are supposed to be the paths to folders where YOU store your data.  
 
-## Running the project
+### Running the project ###
 
 So now we have everything we need to build a malaria classifier in R. The only thing you need to do, is to run both of the masterscripts: first "m_model.R", then "m_score.R". Don't worry if it takes a while to train your model - the amount of time needed depends on the hardware you use. When you installed everything you needed properly and declared the paths to folders as you were supposed to, after executing the whole code, this should appear in your Work folder:
 
 <screenshot of the work folder>
 
-## Deployment: building deployment package
+### Deployment: building deployment package ###
 
 Remember it's not you, who will be using the malaria classifier, you've just build. It will go to your coworkers, that's why you need to prepare it for deployment so that it would be as easy to use as possible. The first step to achieve it was made: you created config_templ.txt file, where you briefly described how your friends are supposed to fill it in. The next step is to build a ZIP file containing all the files they will need to run your solution and to benefit from it. To build ZIP file, go to Addins menu and click "Build ZIP":
 
@@ -275,7 +272,7 @@ After clicking it, a new window will pop up. Each of the created ZIP files needs
 
 ![Specify version](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/specifyversion.png)
 
-## Deployment: installing deployment package
+### Deployment: installing deployment package ###
 
 When you have a ZIP file, in order to use it, do the following: 
 
@@ -311,7 +308,7 @@ As you can see, there is one new folder - sbox. This is in case we require any p
 
 And this is it. You created your first Malaria Classifier using R and prepared it for deployment. There is nothing left to do, than to present to your friends how to use it. By the way, [this subsection](#deployment:-installing-deployment-package) is a great start for the description of how to use your solution, which should be given to your coworkers. This way they will need exactly what to do with the ZIP file you gave them. And if they want to know how you created the model - click [here]().
 
-##Summary
+## Summary
 
 So, let's sum up what we've just done:
 
