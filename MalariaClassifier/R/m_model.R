@@ -21,10 +21,12 @@ args <- args_parser()
 
 if (grepl("darwin|linux-gnu", R.version$os)) {
   #Linux or MacOS
-  reticulate::use_python(python = file.path(script_path, "..", "conda", "bin"), require = TRUE)
+    reticulate::use_python(python = file.path(script_path, "..", "conda", "bin"),
+                           require = TRUE)
 } else {
   # Windows
-  reticulate::use_python(python = file.path(script_path, "..", "conda"), require = TRUE)
+    reticulate::use_python(python = file.path(script_path, "..", "conda"),
+                           require = TRUE)
 }
 
 suppressPackageStartupMessages({
@@ -68,6 +70,5 @@ session_id <- Sys.time()
 
 #Save the model
 
-MalariaModel::saveModel(model, config$models_folder_path, session=session_id)
-
-
+MalariaModel::saveModel(model, config$models_folder_path,
+                        session = session_id)
