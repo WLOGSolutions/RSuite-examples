@@ -6,87 +6,93 @@
 #' @return A folder with training, validation and testing samples.
 #'
 #' @export
-splitAndSave <- function(data_path, new_path, m, n, o, p, r){
+splitAndSave <- function(data_path, new_path, m, n, o, p, r) {
 
-  original_dataset_dir <- data_path
+    original_dataset_dir <- data_path
 
-  #Creating new folder
+                                        #Creating new folder
 
-  base_dir <- new_path
+    base_dir <- new_path
 
-  if(!dir.exists(base_dir)){
-    dir.create(base_dir)
-  }
+    if (!dir.exists(base_dir)) {
+        dir.create(base_dir)
+    }
 
-  #Creating subfolders
+                                        #Creating subfolders
 
-  train_dir <- file.path(base_dir, "train")
-  if(!dir.exists(train_dir)){
-    dir.create(train_dir)
-  }
+    train_dir <- file.path(base_dir, "train")
+    if (!dir.exists(train_dir)) {
+        dir.create(train_dir)
+    }
 
-  validation_dir <- file.path(base_dir, "validation")
-  if(!dir.exists(validation_dir)){
-    dir.create(validation_dir)
-  }
+    validation_dir <- file.path(base_dir, "validation")
+    if (!dir.exists(validation_dir)) {
+        dir.create(validation_dir)
+    }
 
-  test_dir <- file.path(base_dir, "test")
-  if(!dir.exists(test_dir)){
-    dir.create(test_dir)
-  }
+    test_dir <- file.path(base_dir, "test")
+    if (!dir.exists(test_dir)) {
+        dir.create(test_dir)
+    }
 
-  train_infected_dir <- file.path(train_dir, "Parasitized")
-  if(!dir.exists(train_infected_dir)){
-    dir.create(train_infected_dir)
-  }
+    train_infected_dir <- file.path(train_dir, "Parasitized")
+    if (!dir.exists(train_infected_dir)) {
+        dir.create(train_infected_dir)
+    }
 
-  train_uninfected_dir <- file.path(train_dir, "Uninfected")
-  if(!dir.exists(train_uninfected_dir)){
-    dir.create(train_uninfected_dir)
-  }
+    train_uninfected_dir <- file.path(train_dir, "Uninfected")
+    if (!dir.exists(train_uninfected_dir)) {
+        dir.create(train_uninfected_dir)
+    }
 
-  validation_infected_dir <- file.path(validation_dir, "Parasitized")
-  if(!dir.exists(validation_infected_dir)){
-    dir.create(validation_infected_dir)
-  }
+    validation_infected_dir <- file.path(validation_dir, "Parasitized")
+    if (!dir.exists(validation_infected_dir)) {
+        dir.create(validation_infected_dir)
+    }
 
-  validation_uninfected_dir <- file.path(validation_dir, "Uninfected")
-  if(!dir.exists(validation_uninfected_dir)){
-    dir.create(validation_uninfected_dir)
-  }
+    validation_uninfected_dir <- file.path(validation_dir, "Uninfected")
+    if (!dir.exists(validation_uninfected_dir)) {
+        dir.create(validation_uninfected_dir)
+    }
 
-  test_infected_dir <- file.path(test_dir, "Parasitized")
-  if(!dir.exists(test_infected_dir)){
-    dir.create(test_infected_dir)
-  }
+    test_infected_dir <- file.path(test_dir, "Parasitized")
+    if (!dir.exists(test_infected_dir)) {
+        dir.create(test_infected_dir)
+    }
 
-  test_uninfected_dir <- file.path(test_dir, "Uninfected")
-  if(!dir.exists(test_uninfected_dir)){
-    dir.create(test_uninfected_dir)
-  }
+    test_uninfected_dir <- file.path(test_dir, "Uninfected")
+    if (!dir.exists(test_uninfected_dir)) {
+        dir.create(test_uninfected_dir)
+    }
 
-  #Get the names of the files
-  para_names <- list.files(file.path(data_path, "Parasitized"), "*.png")
-  uninf_names <- list.files(file.path(data_path, "Uninfected"), "*.png")
+                                        #Get the names of the files
+    para_names <- list.files(file.path(data_path, "Parasitized"), "*.png")
+    uninf_names <- list.files(file.path(data_path, "Uninfected"), "*.png")
 
-  #Fill the created folders with images
-  fnames1 <- para_names[1:m]
-  file.copy(file.path(original_dataset_dir, "Parasitized", fnames1), file.path(train_infected_dir))
+                                        #Fill the created folders with images
+    fnames1 <- para_names[1:m]
+    file.copy(file.path(original_dataset_dir, "Parasitized", fnames1),
+              file.path(train_infected_dir))
 
-  fnames2 <- para_names[n : o]
-  file.copy(file.path(original_dataset_dir, "Parasitized", fnames2), file.path(validation_infected_dir))
+    fnames2 <- para_names[n : o]
+    file.copy(file.path(original_dataset_dir, "Parasitized", fnames2),
+              file.path(validation_infected_dir))
 
-  fnames3 <- para_names[p:r]
-  file.copy(file.path(original_dataset_dir, "Parasitized",fnames3), file.path(test_infected_dir))
+    fnames3 <- para_names[p:r]
+    file.copy(file.path(original_dataset_dir, "Parasitized", fnames3),
+              file.path(test_infected_dir))
 
-  fnames4 <- uninf_names[1:m]
-  file.copy(file.path(original_dataset_dir, "Uninfected", fnames4), file.path(train_uninfected_dir))
+    fnames4 <- uninf_names[1:m]
+    file.copy(file.path(original_dataset_dir, "Uninfected", fnames4),
+              file.path(train_uninfected_dir))
 
-  fnames5 <- uninf_names[n:o]
-  file.copy(file.path(original_dataset_dir, "Uninfected", fnames5), file.path(validation_uninfected_dir))
+    fnames5 <- uninf_names[n:o]
+    file.copy(file.path(original_dataset_dir, "Uninfected", fnames5),
+              file.path(validation_uninfected_dir))
 
-  fnames6 <- uninf_names[p:r]
-  file.copy(file.path(original_dataset_dir, "Uninfected", fnames6), file.path(test_uninfected_dir))
+    fnames6 <- uninf_names[p:r]
+    file.copy(file.path(original_dataset_dir, "Uninfected", fnames6),
+              file.path(test_uninfected_dir))
 }
 
 #'Load the images and convert them into arrays
@@ -94,7 +100,7 @@ splitAndSave <- function(data_path, new_path, m, n, o, p, r){
 #'@return Images with a shape of an array
 #'@export
 
-ImageLoad <- function(image_fpath){
+ImageLoad <- function(image_fpath) {
   image <- keras::image_load(image_fpath, target_size = c(150, 150))
   image_array <- image_to_array(image)
   return(image_array)
@@ -105,7 +111,7 @@ ImageLoad <- function(image_fpath){
 #'@param folder_name The name of the folder with the samples.
 #'@return A list of images encoded as tensors and labels: 1 - Parasitized, 0 - Uninfected
 #'@export
-getAllImages <- function(new_data_path, folder_name){
+getAllImages <- function(new_data_path, folder_name) {
   data <- array(dim = c(0, 150, 150, 3))
   labels <- character(0)
   para_names <- list.files(file.path(new_data_path, folder_name, "Parasitized"), "*.png")
@@ -150,7 +156,9 @@ getAllImages <- function(new_data_path, folder_name){
   data2 <- abind(data2, number_data2, along=1)
   labels2 <- c(labels2, number_labels2)
 
-  return(list(data_tensor = c(data, data2), labels = c(labels, labels2)))
+  return(list(
+      data_tensor = c(data, data2),
+      labels = c(labels, labels2)))
 }
 
 #'Convert samples into a proper shape: normalize pixel intensities, reshape tensors into a form of (n, 150, 150, 3), convert the lables.
@@ -163,7 +171,8 @@ getAllImages <- function(new_data_path, folder_name){
 convertSamples <- function(dataset) {
     n <- length(dataset$labels)
                                         #reshape arrays
-    tensors <- array_reshape(dataset$data_tensor, c(n, 150, 150, 3))
+    tensors <- array_reshape(dataset$data_tensor,
+                             c(n, 150, 150, 3))
                                         #normalize pixel intensities
     tensors <- tensors / 255
                                         #convert lables
