@@ -64,10 +64,9 @@ valid_data <- DataPreparation::getAllImages(config$new_folder_path, "validation"
 model <- MalariaModel::createModel() %>%
     MalariaModel::trainModel()
 
-session_id <- Sys.time()
+session_id <- MalariaModel::getSessionId()
 
 #Save the model
 
 MalariaModel::saveModel(model, config$models_folder_path, session=session_id)
-
 

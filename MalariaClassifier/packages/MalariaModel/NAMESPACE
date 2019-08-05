@@ -3,6 +3,7 @@
 export(MalariaModel_getLogger)
 export(createModel)
 export(evaluateModel)
+export(getSessionId)
 export(loadModel)
 export(predictClassesAndProbabilities)
 export(saveModel)

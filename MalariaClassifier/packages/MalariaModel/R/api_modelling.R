@@ -29,7 +29,6 @@ createModel <- function (){
 #' @return A history object which is a record of training loss values and metrics values at succesive epochs as well as validation loss values and validation metrics values.
 #' @export
 trainModel <- function(model, epochs = 2, batch_size = 100) {
-
   model %>% fit(train_data$data_tensor,
                 train_data$labels,
                 epochs = epochs,
@@ -38,6 +37,14 @@ trainModel <- function(model, epochs = 2, batch_size = 100) {
                 validation_data = list(valid_data$data_tensor, valid_data$labels))
 
   return(model)
+}
+
+#'Get the session's identificator.
+#'@return A number.
+#'@export
+getSessionId <- function(){
+  session_id <- round(as.numeric(Sys.time()))
+  return(session_id)
 }
 
 #'Save the trained model.
