@@ -105,8 +105,9 @@ saveModelEvaluation <- function(dt, f_path, session){
 predictClassesAndProbabilities <- function(model, test_data){
   classes <- keras::predict_classes(model, test_data)
   probabilities <- keras::predict_proba(model, test_data)
-  dt <- data.table::data.table(Class=classes, Probability=probabilities)
-  colnames(dt) <- c("Class", "Probability")
+  index <- 1:nrow(classes)
+  dt <- data.table::data.table(Id= index, Class=classes, Probability=probabilities)
+  colnames(dt) <- c("Id", "Class", "Probability")
   return(dt)
 }
 
@@ -124,4 +125,37 @@ savePredictions <- function(dt, f_path, session, number){
   }
 
   data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), sprintf("predictions %s", as.character(number))))
+}
+
+#'Checks which samples are infected with probability higher than 50%.
+#'@param f_path A path to the folder where a data frame with predictions is stored.
+#'@param session Session_id.
+#'@param number Prediction_id.
+#'@return A data frame with two columns: the index of the patient with class 1 and the probability of them belonging to the class
+#'@export
+getInfectedIndices <- function(f_path, session, number){
+
+  dt <- fread(file.path(f_path, sprintf("work %s", as.character(session)), sprintf("predictions %s", as.character(number))))
+
+  dt_infected <- dt[dt$Class==1 & dt$Probability>0.5]
+  dt_infected <- dt_infected[ , c(1, 3)]
+
+  return(dt_infected)
+}
+
+#'Save the alleged infected in a .csv file
+#'@param dt A data frame.
+#'@param f_path A path to the folder where the predictions are supposed to be saved
+#'@param session Session_id.
+#'@param number Prediction_id.
+#'@export
+saveInfected <- function(dt, f_path, session, number){
+
+  work_path <- file.path(f_path, sprintf("work %s", as.character(session)))
+
+  if(!dir.exists(work_path)){
+    dir.create(work_path)
+  }
+
+  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), sprintf("infected %s", as.character(number))))
 }

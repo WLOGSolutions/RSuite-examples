@@ -162,9 +162,7 @@ getAllImages <- function(new_data_path, folder_name) {
 }
 
 #'Convert samples into a proper shape: normalize pixel intensities, reshape tensors into a form of (n, 150, 150, 3), convert the lables.
-#'@param tensors Data tensors.
-#'@param labels Data lables.
-#'@param n length of the sample.
+#'@param dataset Data to be converted.
 #'@return A list of data tensors and data lables.
 
 #'@export
@@ -177,9 +175,52 @@ convertSamples <- function(dataset) {
     tensors <- tensors / 255
                                         #convert lables
     labels <- c(rep(1, 0.5 * n), rep(0, 0.5 * n))
-    
+
     return(list(
         data_tensor = tensors,
         labels = dataset$labels))
 
+}
+#'Get the samples to be analised using the model.
+#'@param data_path A path to the data.
+#'@return A list of images encoded as tensors.
+#'@export
+getImagesForAnalysis <- function(data_path){
+
+  data <- array(dim = c(0, 150, 150, 3))
+  names <- list.files(data_path, "*.png")
+  n <- length(names)
+  number_data <- array(dim = c(n, 150, 150, 3))
+  pkg_loginfo("Number of images: %d", n)
+
+  # a loop over all files in a subfolder "Parasitized"
+
+  j <- 1
+  for (name in names) {
+    image_fpath <- file.path(data_path, name)
+    number_data[j, , , ] <- ImageLoad(image_fpath)
+    if (j %% 100 == 0)
+      pkg_loginfo("Processed %d out of %d images ...", j, n)
+    j <- j + 1
+  }
+
+  data <- abind(data, number_data, along = 1)
+  return(list(data_tensor=c(data), length=n))
+
+}
+
+#'Convert images into a proper shape: reshape arrays and normalize pixel intensities.
+#'@param dataset Data to be converted.
+#'@return A list of data tensors.
+#'@export
+convertImagesForAnalysis <- function(dataset){
+  n <- dataset$length
+                                      #reshape arrays
+  tensors <- array_reshape(dataset$data_tensor,
+                           c(n, 150, 150, 3))
+                                      #normalize pixel intensities
+  tensors <- tensors / 255
+
+  return(list(
+    data_tensor=tensors))
 }
