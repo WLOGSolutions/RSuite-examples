@@ -1,0 +1,8 @@
+name: stats
+channels:
+  - javascript
+dependencies:
+  - python=3.6
+  - flask
+  - pip:
+    - Flask-Testing
