@@ -1,0 +1,6 @@
+RSuiteVersion: __RSuiteVersion__
+RVersion: __RVersion__
+Project: __ProjectName__
+Repositories: __LatestMRAN__
+Artifacts: config_templ.txt, notebooks
+ZipVersion: 0.1
