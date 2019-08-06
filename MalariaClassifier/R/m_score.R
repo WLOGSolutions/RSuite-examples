@@ -69,6 +69,4 @@ predictions <- MalariaModel::predictClassesAndProbabilities(model,
 MalariaModel::savePredictions(dt = predictions,
                               config$new_folder_path,
                               session = config$session_id,
-                              number=config$prediction_id)
-
-
+                              number = config$prediction_id)
