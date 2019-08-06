@@ -72,4 +72,3 @@ session_id <- MalariaModel::getSessionId()
 
 MalariaModel::saveModel(model, config$models_folder_path,
                         session = session_id)
-
