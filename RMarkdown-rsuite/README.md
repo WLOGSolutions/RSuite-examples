@@ -13,18 +13,19 @@
 
 After cloning repository you can register RMarkdown template for R Suite projects using commands:
 
-`
+```
 rsuite tmpl register -p RMarkdownTmpl
-`
+```
+
 If everything worked properly you can see a new template issuing command
 
-`
+```
 rsuite tmpl list
-`
+```
 
 At my computer I have the following templates registered. The third one is template for R Markdown.
 
-`
+```
 Name: blog_post
 HasProjectTemplate: TRUE
 HasPackageTemplate: FALSE
@@ -50,19 +51,19 @@ HasProjectTemplate: TRUE
 HasPackageTemplate: TRUE
 Path:
         D:/Workplace/Tools/R/R-3.6.0/library/RSuite/extdata/builtin_templates.zip
-`		
+```		
 
 ## Create a new project using *RMarkdownTmpl* template ##
 
 Now we will create a new project called `EDA` using `RMarkdownTmpl` template
 
-`
+```
 rsuite proj start -n EDA -t RMarkdownTmpl
-`
+```
 
 After project was sucessfuly created you can check its structure using `ls` command. Below you see how it should look like.
 
-`
+```
 2019-08-06  14:30    <DIR>          .
 2019-08-06  14:30    <DIR>          ..
 2019-08-06  14:24                71 .gitignore
@@ -79,7 +80,7 @@ After project was sucessfuly created you can check its structure using `ls` comm
 2019-08-06  14:24               143 PARAMETERS
 2019-08-06  14:24    <DIR>          R
 2019-08-06  14:24    <DIR>          tests
-`
+```
 
 ### `notebooks` folder ###
 
@@ -93,6 +94,6 @@ In folder **R** you can find master script called `render_notebooks.R`. This scr
 
 You can generate all notebooks using command (you must be in `EDA` folder)
 
-`
+```
 Rscript R\render_notebooks.R
-`
+```
