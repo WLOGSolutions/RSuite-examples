@@ -7,6 +7,6 @@ o: the last index of image from the validation set
 p: the first index of image from the test set
 r: the last index of image from the test set
 models_folder_path: path to folder "Models"
-session_id: the number of session
-images_for_analysis: path to the folder with samples for testing
-prediction_id: the number of prediction
+session_id: session index
+images_for_analysis: path to the folder with samples for analysis
+prediction_id: prediction index

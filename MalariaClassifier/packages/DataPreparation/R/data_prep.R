@@ -100,7 +100,7 @@ splitAndSave <- function(data_path, new_path, m, n, o, p, r) {
 #'@return Images with a shape of an array
 #'@export
 
-ImageLoad <- function(image_fpath) {
+imageLoad <- function(image_fpath) {
   image <- keras::image_load(image_fpath, target_size = c(150, 150))
   image_array <- image_to_array(image)
   return(image_array)
@@ -125,7 +125,7 @@ getAllImages <- function(new_data_path, folder_name) {
   j <- 1
   for (para_name in para_names) {
     image_fpath <- file.path(new_data_path, folder_name, "Parasitized", para_name)
-    number_data[j, , , ] <- ImageLoad(image_fpath)
+    number_data[j, , , ] <- imageLoad(image_fpath)
     if (j %% 100 == 0)
       pkg_loginfo("Processed %d out of %d images (label %d)...", j, n, 1)
     j <- j + 1
@@ -144,7 +144,7 @@ getAllImages <- function(new_data_path, folder_name) {
   j <- 1
   for (uninf_name in uninf_names) {
     image_fpath <- file.path(new_data_path, folder_name, "Uninfected", uninf_name)
-    number_data2[j, , , ] <- ImageLoad(image_fpath)
+    number_data2[j, , , ] <- imageLoad(image_fpath)
     if (j %% 100 == 0)
       pkg_loginfo("Processed %d out of %d images (label %d)...", j, m, 0)
     j <- j + 1
@@ -193,12 +193,10 @@ getImagesForAnalysis <- function(data_path){
   number_data <- array(dim = c(n, 150, 150, 3))
   pkg_loginfo("Number of images: %d", n)
 
-  # a loop over all files in a subfolder "Parasitized"
-
   j <- 1
   for (name in names) {
     image_fpath <- file.path(data_path, name)
-    number_data[j, , , ] <- ImageLoad(image_fpath)
+    number_data[j, , , ] <- imageLoad(image_fpath)
     if (j %% 100 == 0)
       pkg_loginfo("Processed %d out of %d images ...", j, n)
     j <- j + 1
