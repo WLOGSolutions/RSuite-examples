@@ -12,6 +12,7 @@
     - [Creating packages in project: DataPreparation](#creating-packages-in-project-datapreparation)
     - [Creating packages in project: MalariaModel](#creating-packages-in-project-malariamodel)
     - [Adding a new folder in project: Work](#adding-a-new-folder-in-project-work)
+    - [Adding a new folder in project: Models](#adding-a-new-folder-in-project-models)
     - [Creating Python environment](#creating-python-environment)
     - [Developing packages in project: DataPreparation](#developing-packages-in-project-datapreparation)
     - [Developing packages in project: MalariaModel](#developing-packages-in-project-malariamodel)
@@ -37,7 +38,7 @@ You're a pretty good data scientist, so you don't give up that easily. You dig a
 3. **Keras** - a powerful Python package which enables to build complicated machine learning models (in particular neural networks) with relatively little effort. It’s a great tool and if you don’t know or simply don’t like Python and prefer R instead, as for today there are three ways to use Keras package in R.
 
 You can combine all of the above tools and build a Malaria Classifier in R. More specifically, you are about to build a convolutional neural network detecting whether the patient is infected or not based on the image of the patient's drop of blood. 
-More than this - you will create a project divided into two parts: one part will be responsible for preparing and training the model- this is work for you. The second part will be for your coworkers - it will use the models trained in the first part to evaluate them and to predict the outcome of the examination.
+More than this - you will create a project divided into three parts: first responsible for preparing and training the model, second for scoring it - this is your job. The third part will be for your coworkers - it will use the models trained in the first two parts to predict the outcome of the examination.
 
 Lucky for you, I've already fulfilled such task, so I will guide you through preparation and deployment of the project. I hope that after this tutorial you will be able to create similar solution all by yourself.
 
@@ -61,8 +62,7 @@ After downloading R Suite CLI and installing you're ready to install R Suite pac
 ```
 > rsuite install 
 ```
-in your console. When RSuite is installed, you need to download and install Git. RSuite forces you to use GIT, so you need to install it before starting a project.
-When Git is installed on your computer, RSuite will automatically put your project under GIT control when starting it. Speaking of projects... Everything's ready, so you're now able to build your first malaria classifier in R.
+in your console. 
 
 ### Git installation ###
 
@@ -129,7 +129,7 @@ After adding new packages to Imports, you need to go back to Addins menu and cli
 
 ![install_deps](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/install_deps.png)
 
-After each dependencies installation, in order for them to work, you need to restart R session. It's like with any other actualisation - you need to restart R session in R Studio so as to implement the changes.
+After each dependencies installation, in order for them to work, you need to restart R session in R Studio. It's like with any other actualisation - you need to restart the system so as to implement the changes.
 
 2. **R folder** - this is where you should save the R Script files with the functions you'll be using later in masterscripts. We will get to this later.
 
@@ -166,7 +166,7 @@ After creating it, please copy .gitignore file there. This is because GIT doesn'
 
 ![New folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/gitignore.png)
 
-## Adding a new folder: Models
+### Adding a new folder in project: Models ###
 
 Now we need to create another folder - "Models". As the name suggests, this will be the place, where we will save the trained models.
 
@@ -174,10 +174,9 @@ The first part is the same as in a previous section. Click "New folder", name it
 
 There is one more step, though. This is a folder, which will contain the trained models, used later by your coworkers to predict patients' health status. Because of this, we want to make sure, that they will get it. This is why we need to go to PARAMETERS file in the main project folder. Open it and add "Models" to Artifacts just like you can see below:
 
-![Models in Artifacts]()
+![Models in Artifacts](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/modelsArt.png)
 
 ### Creating Python environment ###
-
 
 In order to use Keras in R, you need to create a local Python environment inside an RSuite project. If you want to know how to do it from the console, please click [here](https://www.slideshare.net/WLOGSolutions/how-to-lock-a-python-in-a-cage-managing-python-environment-inside-an-r-project). My description will be slightly different than presented there, so you can choose the preferred method.  
 
@@ -250,7 +249,11 @@ We need to create a new RScript file called "m_model.R". We will train our model
 
 ### Creating and developing a masterscript: m_score.R ###
 
-The next step is to create the second masterscript, called "m_score.R". This is where we will evaluate the model trained in "m_model.R" (and this is the script your coworkers will use for predictions). Again, we will save it in R folder in MalariaClassifier project. The content of the script, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_score.R). 
+The next step is to create the second masterscript, called "m_score.R". This is where we will evaluate the model trained in "m_model.R". Again, we will save it in R folder in MalariaClassifier project. The content of the script, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_score.R). 
+
+### Creating and developing a masterscript: m_use.R ###
+
+This is a sript which will be used later by your coworkers. They will be able to predict the outcome of the examination there, based on the model you built and evaluated in the previous scripts. In order to create it, start a new RScript file, copy its content from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_use.R) and save it in R folder in your project.
 
 ### config.txt and config_templ.txt file ###
 
@@ -268,26 +271,26 @@ Config.txt file is where you declare paths to folders, number of samples etc. At
 
 After running the code, open config.txt file which appeared in MalariaClassifier project folder and fill it similarily to mine:
 
-![Config.txt](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/config.png)
+![Config.txt]()
 
 Of course all of the paths to folders are supposed to be the paths to folders where YOU store your data. One mor thing: we don't have our model yet, so we don't know our session_id number. Let's leave this for now, I will tell you when and how to fill it.
  
 
 ### Running the project ###
 
-So now we have everything we need to build a malaria classifier in R. The only thing you need to do, is to run both of the masterscripts: first "m_model.R", then "m_score.R". 
+So now we have everything we need to build a malaria classifier in R. The only thing you need to do, is to run two of the masterscripts: first "m_model.R", then "m_score.R". 
 
 When it comes to "m_model.R" - don't worry if it takes a while to train your model - the amount of time needed depends on the hardware you use. When you installed everything you needed properly and declared the paths to folders as you were supposed to, after executing the whole code, this should appear in your Models folder:
 
-<screenshot of the Models folder>
+![screenshot of the Models folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/insidemodels.png)
 
-Do you see the number in the name of the model? This number is the session_id. So if you have your model now, please copy the number from its name to session_id in your config.txt file. If you've done it, you can run the second masterscript.
+Do you see the number in the name of the model? This number is the session_id. So if you have your model now, please take a look at how it's called (your number will be different than mine) and copy the number from its name to session_id in your config.txt file. If you've done it, you can run the second masterscript.
 
 After running "m_score.R", your Work folder should consist of:
 
-<screenshot of the Work folder>
+![screenshot of the Work folder]()
 
-Of course the number in the name of "work " you see will be different on your computer - this is because of the fact, that your session_id is different than mine. Inside this folder, you should find two files: "evaluation_statistics" and "predictions 1".
+Of course the number in the name of subfolder "work + number" you see will be different on your computer - this is because of the fact that its name is based on session_id. Inside this folder, you should find two files: "evaluation_statistics" and "predictions 1".
 
 ### Deployment: building deployment package ###
 
@@ -316,21 +319,22 @@ What's inside them? In R folder, you will find the masterscripts. In libs, the p
 3. Fill config_templ.txt file as it states in the instructions. Declare path to folders, files and number of samples. In particular:
 
 - **new_folder_path** - bear in mind that it should be the path to the folder "Work" you've just created. This way you will have all your results in one place. 
-- **letters m-r** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_score.R"). They indicate the indices of training, validation and testing samples (both parasitized and uninfected): 1-m are the indices of training samples, n-o validation samples and p-r testing samples.
-- **session_id** - this is extremely important for people using "m_score.R". This id will indicate which of the models to use. Each of the models from "Models" folder will be named "model + number". And this number of a wanted model is what you're supposed to type in session_id.
+- **letters m-r** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_score.R" or "m_use.R"). They indicate the indices of training, validation and testing samples (both parasitized and uninfected): 1-m are the indices of training samples, n-o validation samples and p-r testing samples.
+- **session_id** - this is extremely important for people using "m_score.R" and "m_use.R". This id will indicate which of the models to use. Each of the models from "Models" folder will be named "model + number". And this number of a wanted model is what you're supposed to type in session_id.
+- **images_for_analysis** - only for your coworkers. The path to a folder where they store samples to be tested using the models you built.
 - **prediction_id** - also, very importand for your coworkers. When they want to use the same model to test different samples, they need to distinguish the files with the results somehow. And this is why they need to fill "prediction_id". It will appear in the name of the file with predictions (the file will be called "predictions + prediction_id").
 
 4. Open the terminal and go to the folder "Production". Then open R folder and type:
 ```
 Rscript m_model.R
 ```
-This command should start executing the code from the masterscript "m_model.R". Your model is supposed to be trained and saved in the "Work" folder. When everything has run properly, type:
+This command should start executing the code from the masterscript "m_model.R". Your model is supposed to be trained and saved in the "Models" folder. When everything has run properly, type:
 ```
 Rscript m_score.R
 ```
 This should execute the code from the masterscript "m_score.R". After everything has run properly, in your "Work" folder, you should find the following files:
 
-![Work folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/insideWork.png)
+<screenshot of a work folder>
 
 Take a quick look on how the content of MalariaClassifier folder presents itself now:
 
@@ -345,9 +349,53 @@ And this is it. You created your first Malaria Classifier using R and prepared i
 So, let's sum up what we've just done:
 
 - We created a project involving malaria classifier which uses Python but the whole code is written in R.
-- Thanks to RSuite, the project is divided into two parts: one responsible for preparing the model, second for evaluating it.
-- We enabled the easy deployment of the project - even people who has never been programming are able to use the second part of the project in order to check whether a patient is sick or not.
+- Thanks to RSuite, the project is divided into three parts: one responsible for preparing the model, second for evaluating it and the third one is ready to be used by your coworkers to test real samples.
+- We enabled the easy deployment of the project - even people who has never been programming are able to use the third part of the project in order to check whether a patient is sick or not.
 
 This means we successfully completed the task described in the introduction. If you're interested in creating and developing similar projects, please check out these articles:
 
 -
+
+And if you want to know exactly how and why the particular parts of the R code were created, the next section is for you.
+
+## Understanding malaria project step by step ##
+
+### Introduction ###
+
+I will guide you through all of the project's functionalities. I will describe the idea behind the functions needed for preparing the data as well as the theory behind modelling it. I assume that you have some experience in the basics of machine learning techniques, especially classifying images, therefore the theory behind CNN's in general won't be covered in this section. You can expect a detailed description of the created model, though.
+
+## Understanding the task ##
+
+We want to partly automatize the process of detecting whether a patient has malaria or not. In order to do this, we can create a classifier which, based on the image it analises, returns value 1/0 if the patient is sick/healthy. We can go a bit further and require that it additionaly returns the probability of the image belonging to the predicted class. So our goal is to create a classifier which, after running, returns a file with a list of people who are likely to be sick with a probability, let's say, greater than 50%.
+
+At our disposal we have: R, RSuite, RStudio, Conda and a large dataset to train our model. Our dataset consists of two folders: Parasitized and Uninfected. Each of the folders contains over 13k images of cells infected and uninfected respectively. Take a look on how the images present themselves (left - infected, right - uninfected):
+
+![cell images](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/cellimages.png)
+
+What can we deduct from the images that will help us accomplish the task? They are pretty simple, not very detailed, colorful. Perfect for building an image classifier based on a convolutional neural network. But before building the model, we need to prepare our images first.
+
+### Understanding package: DataPreparation ###
+
+In this package, in R folder, we have a few functions needed to prepare our data for modelling. We can divide this preparation into 3 steps:
+
+1. Splitting the data into training, validation and testing samples. 
+For this, we have a function called "splitAndSave". Basically, it splits the dataset into the three subsets. Each of the subsets consists of two folders: Parasitized and Uninfected.
+2. Loading and labeling the data. 
+What you need to do next, is to load the images in a form of a data tensors. Two functions helping you with this: imageLoad and getAllImages. imageLoad is a function which loads an image, resizes it to 150x150 pixels and returns it in a form of an array. getAllImages is a loop over all images, which uses imageLoad to read the files and, in addition, labels them and reshapes them into data tensors.  
+3. Converting the data.
+So far, we've managed to read the images and to convert them into data tensors. Now we have to reshape the arrays so that they are ready to be processed. We need to have them in a form of (n, 150, 150, 3), where n is the number of samples and 3 indicates color depth. Moreover, it is better for modelling, when the values of an array range from 0 to 1. That's why we need to normalize pixel intensities. All of the above tasks are covered by a function "convertSamples". It returns a list of data tensors in a proper shape and their labels.
+
+Of course, preparing the data for modelling is slightly different than preparing it for being used by the trained model. That's why we have two more functions in DataPreparation package:
+
+- getImagesForAnalysis - very similar to getAllImages. There is one difference - it doesn't return any labels.
+- convertImagesForAnalysis - it works like convertSamples, without converting any labels, though.
+
+So basically what these two functions do is to convert real data into data tensors of a proper shape, so that they are ready to be processed by our model. 
+
+### Understanding package: MalariaModel ###
+
+### Understanding masterscript: m_model.R ###
+
+### Understanding masterscript: m_score.R ###
+
+### Understanding masterscript: m_use.R ###
