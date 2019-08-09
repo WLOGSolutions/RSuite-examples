@@ -183,16 +183,19 @@ In order to use Keras in R, you need to create a local Python environment inside
 When you have installed conda on your computer, you're halfway to create a local Python environment. We will do it in 4 steps:
 
 1. Add system requirements to DataPreparation package. 
+
 In DataPreparation package, in the DESCRIPTION file, require conda as well as all of the needed Python's packages. It should look as follows: 
 
 ![System requirements](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/sys_reqs.png)
 
 2. Install the requirements.
+
 For this open a new terminal (from RStudio -> Tools -> Terminal -> New Terminal) and type:
 ```
 > Rsuite sysreqs install
 ```
 3. Add conda folder to Artifacts in PARAMETERS.
+
 Go to your main project folder and open "PARAMETERS" file. Add conda to Artifacts, just like you did with "Models" folder:
 
 ![Add conda to Artifacts](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/condainart.png)
@@ -200,6 +203,7 @@ Go to your main project folder and open "PARAMETERS" file. Add conda to Artifact
 Thanks to doing so, conda will be present while deploying your package and nobody will need to worry about installing Python or any Python's packages.
 
 4. Force your project to use local Python. 
+
 You can do it by typing
 ```
 if (grepl("darwin|linux-gnu", R.version$os)) {
@@ -273,7 +277,7 @@ After running the code, open config.txt file which appeared in MalariaClassifier
 
 ![Config.txt]()
 
-Of course all of the paths to folders are supposed to be the paths to folders where YOU store your data. One mor thing: we don't have our model yet, so we don't know our session_id number. Let's leave this for now, I will tell you when and how to fill it.
+Of course all of the paths to folders are supposed to be the paths to folders where YOU store your data. One more thing: we don't have our model yet, so we don't know our session_id number. Let's leave this for now, I will tell you when and how to fill it.
  
 
 ### Running the project ###
@@ -378,11 +382,16 @@ What can we deduct from the images that will help us accomplish the task? They a
 
 In this package, in R folder, we have a few functions needed to prepare our data for modelling. We can divide this preparation into 3 steps:
 
-1. Splitting the data into training, validation and testing samples. 
+1. Splitting the data into training, validation and testing samples.
+
 For this, we have a function called "splitAndSave". Basically, it splits the dataset into the three subsets. Each of the subsets consists of two folders: Parasitized and Uninfected.
+
 2. Loading and labeling the data. 
-What you need to do next, is to load the images in a form of a data tensors. Two functions helping you with this: imageLoad and getAllImages. imageLoad is a function which loads an image, resizes it to 150x150 pixels and returns it in a form of an array. getAllImages is a loop over all images, which uses imageLoad to read the files and, in addition, labels them and reshapes them into data tensors.  
+
+What you need to do next, is to load the images in a form of a data tensors. Two functions helping you with this: imageLoad and getAllImages. imageLoad is a function which loads an image, resizes it to 150x150 pixels and returns it in a form of an array. getAllImages is a loop over all images, which uses imageLoad to read the files and, in addition, labels them and reshapes them into data tensors. 
+
 3. Converting the data.
+
 So far, we've managed to read the images and to convert them into data tensors. Now we have to reshape the arrays so that they are ready to be processed. We need to have them in a form of (n, 150, 150, 3), where n is the number of samples and 3 indicates color depth. Moreover, it is better for modelling, when the values of an array range from 0 to 1. That's why we need to normalize pixel intensities. All of the above tasks are covered by a function "convertSamples". It returns a list of data tensors in a proper shape and their labels.
 
 Of course, preparing the data for modelling is slightly different than preparing it for being used by the trained model. That's why we have two more functions in DataPreparation package:
