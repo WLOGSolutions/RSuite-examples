@@ -368,7 +368,7 @@ And if you want to know exactly how and why the particular parts of the R code w
 
 I will guide you through all of the project's functionalities. I will describe the idea behind the functions needed for preparing the data as well as the theory behind modelling it. I assume that you have some experience in the basics of machine learning techniques, especially classifying images, therefore the theory behind CNN's in general won't be covered in this section. You can expect a detailed description of the created model, though.
 
-## Understanding the task ##
+### Understanding the task ###
 
 We want to partly automatize the process of detecting whether a patient has malaria or not. In order to do this, we can create a classifier which, based on the image it analises, returns value 1/0 if the patient is sick/healthy. We can go a bit further and require that it additionaly returns the probability of the image belonging to the predicted class. So our goal is to create a classifier which, after running, returns a file with a list of people who are likely to be sick with a probability, let's say, greater than 50%.
 
@@ -384,7 +384,7 @@ In this package, in R folder, we have a few functions needed to prepare our data
 
 1. Splitting the data into training, validation and testing samples.
 
-For this, we have a function called "splitAndSave". Basically, it splits the dataset into the three subsets. Each of the subsets consists of two folders: Parasitized and Uninfected.
+For this, we have a function called "splitAndSave". It creates a new folder containing three subfolders: train, validation and test. Each of the subfolders consists of two subsets: Parasitized and Uninfected.
 
 2. Loading and labeling the data. 
 
