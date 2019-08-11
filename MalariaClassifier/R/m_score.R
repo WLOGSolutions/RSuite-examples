@@ -44,14 +44,12 @@ model <- MalariaModel::loadModel(config$models_folder_path, config$session_id)
                                         #Get testing samples
                                         #Convert the samples into a proper form
 
-test_data <- DataPreparation::getAllImages(config$new_folder_path, "test") %>%
-    DataPreparation::convertSamples()
+test_data <- DataPreparation::getAllImages(config$new_folder_path, "test")
 
 #Evaluate the trained model
 
 evaluation <- MalariaModel::evaluateModel(model,
-                                          test_data$data_tensor,
-                                          test_data$labels)
+                                          test_data)
 
 #Save model evaluation into a .csv file
 
@@ -62,7 +60,7 @@ MalariaModel::saveModelEvaluation(dt = evaluation,
 #Predict classes of the test samples and the probability of each sample belonging to the predicted class
 
 predictions <- MalariaModel::predictClassesAndProbabilities(model,
-                                                            test_data$data_tensor)
+                                                            test_data)
 
 #Save predictions into a .csv file
 

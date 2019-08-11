@@ -45,13 +45,13 @@ model <- MalariaModel::loadModel(config$models_folder_path, config$session_id)
                                         #Convert the images into a proper form
 
 
-samples <- DataPreparation::getImagesForAnalysis(config$images_for_testing)%>%
-  DataPreparation::convertImagesForAnalysis()
+samples <- DataPreparation::getImagesForAnalysis(config$images_for_analysis)
+
 
 #Predict classes of the test samples and the probability of each sample belonging to the predicted class
 
 predictions <- MalariaModel::predictClassesAndProbabilities(model,
-                                                            samples$data_tensor)
+                                                            samples)
 #Save predictions into a .csv file
 
 MalariaModel::savePredictions(dt = predictions,

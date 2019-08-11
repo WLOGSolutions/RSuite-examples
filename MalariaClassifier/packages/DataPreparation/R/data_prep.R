@@ -95,130 +95,37 @@ splitAndSave <- function(data_path, new_path, m, n, o, p, r) {
               file.path(test_uninfected_dir))
 }
 
-#'Load the images and convert them into arrays
-#'@param image_fpath A path to a folder where the images are stored
-#'@return Images with a shape of an array
-#'@export
-
-imageLoad <- function(image_fpath) {
-  image <- keras::image_load(image_fpath, target_size = c(150, 150))
-  image_array <- image_to_array(image)
-  return(image_array)
-}
-
 #'Convert the images into a proper form.
 #'@param new_data_path A path to the folder with the samples.
 #'@param folder_name The name of the folder with the samples.
-#'@return A list of images encoded as tensors and labels: 1 - Parasitized, 0 - Uninfected
+#'@return Keras image generator.
 #'@export
 getAllImages <- function(new_data_path, folder_name) {
-  data <- array(dim = c(0, 150, 150, 3))
-  labels <- character(0)
-  para_names <- list.files(file.path(new_data_path, folder_name, "Parasitized"), "*.png")
-  n <- length(para_names)
-  number_data <- array(dim = c(n, 150, 150, 3))
-  number_labels <- rep(as.character(1), n)
-  pkg_loginfo("Number of images with label %d: %d", 1, n)
 
-  # a loop over all files in a subfolder "Parasitized"
+  generator <- keras::image_data_generator(rescale=1/255)
 
-  j <- 1
-  for (para_name in para_names) {
-    image_fpath <- file.path(new_data_path, folder_name, "Parasitized", para_name)
-    number_data[j, , , ] <- imageLoad(image_fpath)
-    if (j %% 100 == 0)
-      pkg_loginfo("Processed %d out of %d images (label %d)...", j, n, 1)
-    j <- j + 1
-  }
-
-  data2 <- array(dim = c(0, 150, 150, 3))
-  labels2 <- character(0)
-  uninf_names <- list.files(file.path(new_data_path, folder_name, "Uninfected"), "*.png")
-  m <- length(uninf_names)
-  number_data2 <- array(dim = c(m, 150, 150, 3))
-  number_labels2 <- rep(as.character(0), m)
-  pkg_loginfo("Number of images with label %d: %d", 0, m)
-
-  # a loop over all files in a subfolder "Uninfected"
-
-  j <- 1
-  for (uninf_name in uninf_names) {
-    image_fpath <- file.path(new_data_path, folder_name, "Uninfected", uninf_name)
-    number_data2[j, , , ] <- imageLoad(image_fpath)
-    if (j %% 100 == 0)
-      pkg_loginfo("Processed %d out of %d images (label %d)...", j, m, 0)
-    j <- j + 1
-  }
-
-  data <- abind(data, number_data, along = 1)
-  labels <- c(labels, number_labels)
-
-  data2 <- abind(data2, number_data2, along=1)
-  labels2 <- c(labels2, number_labels2)
-
-  return(list(
-      data_tensor = c(data, data2),
-      labels = c(labels, labels2)))
+  data_generator <- keras:: flow_images_from_directory(file.path(new_data_path, folder_name),
+                                                       generator,
+                                                       target_size = c(150, 150),
+                                                       classes = c("Uninfected", "Parasitized"),
+                                                       batch_size = 5,
+                                                       class_mode = "binary")
+  return(data_generator)
 }
 
-#'Convert samples into a proper shape: normalize pixel intensities, reshape tensors into a form of (n, 150, 150, 3), convert the lables.
-#'@param dataset Data to be converted.
-#'@return A list of data tensors and data lables.
-
+#'Convert the images for analysis into a proper form.
+#'@param image_path A path to the folder with the samples..
+#'@return Keras image generator.
 #'@export
-convertSamples <- function(dataset) {
-    n <- length(dataset$labels)
-                                        #reshape arrays
-    tensors <- array_reshape(dataset$data_tensor,
-                             c(n, 150, 150, 3))
-                                        #normalize pixel intensities
-    tensors <- tensors / 255
-                                        #convert lables
-    labels <- c(rep(1, 0.5 * n), rep(0, 0.5 * n))
+getImagesForAnalysis <- function(image_path){
 
-    return(list(
-        data_tensor = tensors,
-        labels = dataset$labels))
+  generator <- keras::image_data_generator(rescale=1/255)
 
-}
-#'Get the samples to be analised using the model.
-#'@param data_path A path to the data.
-#'@return A list of images encoded as tensors.
-#'@export
-getImagesForAnalysis <- function(data_path){
-
-  data <- array(dim = c(0, 150, 150, 3))
-  names <- list.files(data_path, "*.png")
-  n <- length(names)
-  number_data <- array(dim = c(n, 150, 150, 3))
-  pkg_loginfo("Number of images: %d", n)
-
-  j <- 1
-  for (name in names) {
-    image_fpath <- file.path(data_path, name)
-    number_data[j, , , ] <- imageLoad(image_fpath)
-    if (j %% 100 == 0)
-      pkg_loginfo("Processed %d out of %d images ...", j, n)
-    j <- j + 1
-  }
-
-  data <- abind(data, number_data, along = 1)
-  return(list(data_tensor=c(data), length=n))
-
-}
-
-#'Convert images into a proper shape: reshape arrays and normalize pixel intensities.
-#'@param dataset Data to be converted.
-#'@return A list of data tensors.
-#'@export
-convertImagesForAnalysis <- function(dataset){
-  n <- dataset$length
-                                      #reshape arrays
-  tensors <- array_reshape(dataset$data_tensor,
-                           c(n, 150, 150, 3))
-                                      #normalize pixel intensities
-  tensors <- tensors / 255
-
-  return(list(
-    data_tensor=tensors))
+  data_generator <- keras:: flow_images_from_directory(image_path,
+                                                       generator,
+                                                       target_size = c(150, 150),
+                                                       batch_size = 1,
+                                                       class_mode = NULL,
+                                                       shuffle = FALSE)
+  return(data_generator)
 }

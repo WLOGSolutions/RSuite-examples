@@ -18,7 +18,9 @@ createModel <- function (){
     layer_dense(units=512, activation = "relu") %>%
     layer_dense(units = 1, activation = "sigmoid")
 
-  model_architecture %>% compile(loss="binary_crossentropy", optimizer=optimizer_rmsprop(lr=1e-5), metrics=c("acc"))
+  model_architecture %>% compile(loss="binary_crossentropy",
+                                 optimizer=optimizer_rmsprop(lr=1e-5),
+                                 metrics=c("acc"))
   return(model_architecture)
 
 }
@@ -28,14 +30,13 @@ createModel <- function (){
 #' @param model A compiled keras model object.
 #' @return A history object which is a record of training loss values and metrics values at succesive epochs as well as validation loss values and validation metrics values.
 #' @export
-trainModel <- function(model, epochs = 2, batch_size = 100) {
-  model %>% fit(train_data$data_tensor,
-                train_data$labels,
-                epochs = epochs,
-                batch_size = batch_size,
-                view_metrics=TRUE,
-                validation_data = list(valid_data$data_tensor, valid_data$labels))
+trainModel <- function(model) {
 
+             model %>% fit_generator(train_data,
+                                     steps_per_epoch = 2,
+                                     epochs = 2,
+                                     validation_data = valid_data,
+                                     validation_steps = 5)
   return(model)
 }
 
@@ -75,8 +76,8 @@ loadModel <- function(models_f_path, session){
 #'@return A data table with accuracy and loss statistics saved in a .csv file in a work folder.
 #'
 #'@export
-evaluateModel <- function(model, test_data, test_labels){
-  eva <- keras::evaluate(model, test_data, test_labels)
+evaluateModel <- function(model, test_data){
+  eva <- keras::evaluate_generator(model, test_data, steps = 5)
   dt <- data.table::data.table(loss=eva$loss, acc=eva$acc)
   return(dt)
 }
@@ -103,11 +104,15 @@ saveModelEvaluation <- function(dt, f_path, session){
 #' @return A data table with two columns: Class and Probability saved in a .csv file in a work folder.
 #' @export
 predictClassesAndProbabilities <- function(model, test_data){
-  classes <- keras::predict_classes(model, test_data)
-  probabilities <- keras::predict_proba(model, test_data)
-  index <- 1:nrow(classes)
+
+
+  probabilities <- keras::predict_generator(model, test_data, steps = test_data$n, verbose = 1)
+  classes <- ifelse(probabilities > 0.5, 1, 0)
+  index <- test_data$filenames
+
   dt <- data.table::data.table(Id= index, Class=classes, Probability=probabilities)
   colnames(dt) <- c("Id", "Class", "Probability")
+
   return(dt)
 }
 
