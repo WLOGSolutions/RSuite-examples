@@ -6,7 +6,7 @@
 #' @return A folder with training, validation and testing samples.
 #'
 #' @export
-splitAndSave <- function(data_path, new_path, m, n, o, p, r) {
+splitAndSave <- function(data_path, new_path, id_train, id_valid, id_test) {
 
     original_dataset_dir <- data_path
 
@@ -70,27 +70,27 @@ splitAndSave <- function(data_path, new_path, m, n, o, p, r) {
     uninf_names <- list.files(file.path(data_path, "Uninfected"), "*.png")
 
                                         #Fill the created folders with images
-    fnames1 <- para_names[1:m]
+    fnames1 <- para_names[1:as.numeric(id_train)]
     file.copy(file.path(original_dataset_dir, "Parasitized", fnames1),
               file.path(train_infected_dir))
 
-    fnames2 <- para_names[n : o]
+    fnames2 <- para_names[(as.numeric(id_train)+1) : as.numeric(id_valid)]
     file.copy(file.path(original_dataset_dir, "Parasitized", fnames2),
               file.path(validation_infected_dir))
 
-    fnames3 <- para_names[p:r]
+    fnames3 <- para_names[(as.numeric(id_valid)+1):as.numeric(id_test)]
     file.copy(file.path(original_dataset_dir, "Parasitized", fnames3),
               file.path(test_infected_dir))
 
-    fnames4 <- uninf_names[1:m]
+    fnames4 <- uninf_names[1:as.numeric(id_train)]
     file.copy(file.path(original_dataset_dir, "Uninfected", fnames4),
               file.path(train_uninfected_dir))
 
-    fnames5 <- uninf_names[n:o]
+    fnames5 <- uninf_names[(as.numeric(id_train)+1):as.numeric(id_valid)]
     file.copy(file.path(original_dataset_dir, "Uninfected", fnames5),
               file.path(validation_uninfected_dir))
 
-    fnames6 <- uninf_names[p:r]
+    fnames6 <- uninf_names[(as.numeric(id_valid)+1):as.numeric(id_test)]
     file.copy(file.path(original_dataset_dir, "Uninfected", fnames6),
               file.path(test_uninfected_dir))
 }

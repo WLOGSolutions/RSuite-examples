@@ -43,11 +43,9 @@ suppressPackageStartupMessages({
 DataPreparation::splitAndSave(
                      config$dataset_path,
                      config$new_folder_path,
-                     config$m,
-                     config$n,
-                     config$o,
-                     config$p,
-                     config$r)
+                     config$id_train,
+                     config$id_valid,
+                     config$id_test)
 
 
 #Get training and validation samples
