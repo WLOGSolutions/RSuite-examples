@@ -323,9 +323,9 @@ What's inside them? In R folder, you will find the masterscripts. In libs, the p
 3. Fill config_templ.txt file as it states in the instructions. Declare path to folders, files and number of samples. In particular:
 
 - **new_folder_path** - bear in mind that it should be the path to the folder "Work" you've just created. This way you will have all your results in one place. 
-- **letters m-r** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_score.R" or "m_use.R"). They indicate the indices of training, validation and testing samples (both parasitized and uninfected): 1-m are the indices of training samples, n-o validation samples and p-r testing samples.
+- **id_test, id_valid, id_train** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_score.R" or "m_use.R"). They indicate the indices of training, validation and testing samples (both parasitized and uninfected): [1, id_train] is the interval of the indices of training samples, [id_train+1, id_valid] of validation samples and [it_valid+1, id_test] of testing samples.
 - **session_id** - this is extremely important for people using "m_score.R" and "m_use.R". This id will indicate which of the models to use. Each of the models from "Models" folder will be named "model + number". And this number of a wanted model is what you're supposed to type in session_id.
-- **images_for_analysis** - only for your coworkers. The path to a folder where they store samples to be tested using the models you built.
+- **images_for_analysis** - only for your coworkers. The path to a folder where they store folder with the samples to be tested using the models you built.
 - **prediction_id** - also, very importand for your coworkers. When they want to use the same model to test different samples, they need to distinguish the files with the results somehow. And this is why they need to fill "prediction_id". It will appear in the name of the file with predictions (the file will be called "predictions + prediction_id").
 
 4. Open the terminal and go to the folder "Production". Then open R folder and type:
@@ -388,7 +388,7 @@ For this, we have a function called "splitAndSave". It creates a new folder cont
 
 2. Loading, converting and labeling the data. 
 
-What you need to do next, is to load the images in a form of a data tensors and to label them accordingly to their classes. This may seem as at least three steps, but thanks to Keras, it's really easy. The function which helps you do it, is "getAllImages". Take a look at it:
+What you need to do next, is to load the images in a form of a data tensors and to label them accordingly to their classes. This may seem as at least three steps, but thanks to Keras, it's really easy. The function which helps you do it, is *getAllImages*. Take a look at it:
 
 ```
 getAllImages <- function(new_data_path, folder_name) {
@@ -433,6 +433,8 @@ getImagesForAnalysis <- function(image_path){
 Can you see the differences? These are testing samples, so we don't have their labels. That's why we need to specify *class_mode* argument to NULL. Another important thing here is argument *shuffle*: it needs to be set to FALSE, because it's better, when our testing data isn't mixed during being processed by our model. 
 
 ### Understanding package: MalariaModel ###
+
+This package's purpose is to store the functions that have anything to do with the modelling. So whether it is building the model or using it in any way, functions needed to do it you can find in "api_modelling.R" file in MalariaModel. 
 
 ### Understanding masterscript: m_model.R ###
 
