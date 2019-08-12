@@ -3,24 +3,24 @@
 #' @return A compiled model.
 #' @export
 
-createModel <- function (){
-  model_architecture <- keras_model_sequential() %>%
-    layer_conv_2d(filters=32, kernel_size = c(3,3), activation = "relu", input_shape = c(150, 150, 3)) %>%
-    layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    layer_conv_2d(filters=64, kernel_size = c(3,3), activation = "relu") %>%
-    layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
-    layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
-    layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    layer_flatten() %>%
-    layer_dropout(rate=0.5) %>%
-    layer_dense(units=512, activation = "relu") %>%
-    layer_dense(units = 1, activation = "sigmoid")
+createModel <- function() {
+  model_architecture <- keras::keras_model_sequential() %>%
+    keras::layer_conv_2d(filters=32, kernel_size = c(3,3), activation = "relu", input_shape = c(150, 150, 3)) %>%
+    keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
+    keras::layer_conv_2d(filters=64, kernel_size = c(3,3), activation = "relu") %>%
+    keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
+    keras::layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
+    keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
+    keras::layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
+    keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
+    keras::layer_flatten() %>%
+    keras::layer_dropout(rate=0.5) %>%
+    keras::layer_dense(units=512, activation = "relu") %>%
+    keras::layer_dense(units = 1, activation = "sigmoid")
 
-  model_architecture %>% compile(loss="binary_crossentropy",
-                                 optimizer=optimizer_rmsprop(lr=1e-5),
-                                 metrics=c("acc"))
+  model_architecture %>% keras::compile(loss="binary_crossentropy",
+                                        optimizer = keras::optimizer_rmsprop(lr=1e-5),
+                                        metrics = c("acc"))
   return(model_architecture)
 
 }
@@ -78,7 +78,7 @@ loadModel <- function(models_f_path, session){
 #'@export
 evaluateModel <- function(model, test_data){
   eva <- keras::evaluate_generator(model, test_data, steps = 5)
-  dt <- data.table::data.table(loss=eva$loss, acc=eva$acc)
+  dt <- data.table::data.table(loss = eva$loss, acc = eva$acc)
   return(dt)
 }
 
@@ -91,7 +91,7 @@ saveModelEvaluation <- function(dt, f_path, session){
 
   work_path <- file.path(f_path, sprintf("work %s", as.character(session)))
 
-  if(!dir.exists(work_path)){
+  if (!dir.exists(work_path)) {
     dir.create(work_path)
   }
 
@@ -110,7 +110,9 @@ predictClassesAndProbabilities <- function(model, test_data){
   classes <- ifelse(probabilities > 0.5, 1, 0)
   index <- test_data$filenames
 
-  dt <- data.table::data.table(Id= index, Class=classes, Probability=probabilities)
+  dt <- data.table::data.table(Id = index,
+                               Class = classes,
+                               Probability = probabilities)
   colnames(dt) <- c("Id", "Class", "Probability")
 
   return(dt)
@@ -121,28 +123,31 @@ predictClassesAndProbabilities <- function(model, test_data){
 #'@param f_path A path to the folder where predictions are supposed to be saved.
 #'@return A .csv file called "predictions".
 #'@export
-savePredictions <- function(dt, f_path, session, number){
+savePredictions <- function(dt, f_path, session_id, pred_id) {
+  work_path <- file.path(f_path, sprintf("work %s", as.character(session_id)))
 
-  work_path <- file.path(f_path, sprintf("work %s", as.character(session)))
-
-  if(!dir.exists(work_path)){
+  if (!dir.exists(work_path)) {
     dir.create(work_path)
   }
 
-  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), sprintf("predictions %s", as.character(number))))
+  data.table::fwrite(dt, file.path(f_path,
+                                   sprintf("work %s", session_id),
+                                   sprintf("predictions %s", as.character(pred_id))))
 }
 
 #'Checks which samples are infected with probability higher than 50%.
 #'@param f_path A path to the folder where a data frame with predictions is stored.
-#'@param session Session_id.
-#'@param number Prediction_id.
+#'@param session_id Session_id.
+#'@param pred_id Prediction_id.
+#'@param threshold
 #'@return A data frame with two columns: the index of the patient with class 1 and the probability of them belonging to the class
 #'@export
-getInfectedIndices <- function(f_path, session, number){
+getInfectedIndices <- function(f_path, session_id, pred_id, threshold){
 
-  dt <- fread(file.path(f_path, sprintf("work %s", as.character(session)), sprintf("predictions %s", as.character(number))))
+  dt <- data.table::fread(file.path(f_path, sprintf("work %s", session_id),
+                        sprintf("predictions %s", pred_id)))
 
-  dt_infected <- dt[dt$Class==1 & dt$Probability>0.5]
+  dt_infected <- dt[dt$Class == 1 & dt$Probability > threshold]
   dt_infected <- dt_infected[ , c(1, 3)]
 
   return(dt_infected)
@@ -151,16 +156,17 @@ getInfectedIndices <- function(f_path, session, number){
 #'Save the alleged infected in a .csv file
 #'@param dt A data frame.
 #'@param f_path A path to the folder where the predictions are supposed to be saved
-#'@param session Session_id.
-#'@param number Prediction_id.
+#'@param session_id Session_id.
+#'@param pred_id Prediction_id.
 #'@export
-saveInfected <- function(dt, f_path, session, number){
+saveInfected <- function(dt, f_path, session_id, pred_id){
 
-  work_path <- file.path(f_path, sprintf("work %s", as.character(session)))
+  work_path <- file.path(f_path, sprintf("work %s", session_id))
 
-  if(!dir.exists(work_path)){
+  if (!dir.exists(work_path)) {
     dir.create(work_path)
   }
 
-  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), sprintf("infected %s", as.character(number))))
+  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", session_id),
+                                   sprintf("infected %s", pred_id)))
 }

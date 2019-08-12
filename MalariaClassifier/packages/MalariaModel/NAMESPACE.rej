@@ -1,0 +1,10 @@
+diff a/MalariaClassifier/packages/MalariaModel/NAMESPACE b/MalariaClassifier/packages/MalariaModel/NAMESPACE	(rejected hunks)
+@@ -6,8 +6,6 @@ export(evaluateModel)
+ export(loadModel)
+ export(predictClassesAndProbabilities)
+ export(saveModel)
+-export(saveModelEvaluation)
+-export(savePredictions)
+ export(trainModel)
+ import(logging)
+ 

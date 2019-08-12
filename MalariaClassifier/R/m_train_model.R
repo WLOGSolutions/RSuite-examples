@@ -50,9 +50,9 @@ DataPreparation::splitAndSave(
 
 #Get training and validation samples
 
-train_data <- DataPreparation::getLabelledImages(config$new_folder_path, "train")
+train_data <- DataPreparation::getAllImages(config$new_folder_path, "train")
 
-valid_data <- DataPreparation::getLabelledImages(config$new_folder_path, "validation")
+valid_data <- DataPreparation::getAllImages(config$new_folder_path, "validation")
 
 #2) MODEL TRAINING
 

@@ -44,7 +44,7 @@ model <- MalariaModel::loadModel(config$models_folder_path, config$session_id)
                                         #Get testing samples
                                         #Convert the samples into a proper form
 
-test_data <- DataPreparation::getAllImages(config$new_folder_path, "test")
+test_data <- DataPreparation::getLabeledImages(config$new_folder_path, "test")
 
 #Evaluate the trained model
 
@@ -55,7 +55,7 @@ evaluation <- MalariaModel::evaluateModel(model,
 
 MalariaModel::saveModelEvaluation(dt = evaluation,
                                   config$new_folder_path,
-                                  session = config$session_id)
+                                  session_id = config$session_id)
 
 #Predict classes of the test samples and the probability of each sample belonging to the predicted class
 
@@ -66,5 +66,5 @@ predictions <- MalariaModel::predictClassesAndProbabilities(model,
 
 MalariaModel::savePredictions(dt = predictions,
                               config$new_folder_path,
-                              session = config$session_id,
-                              number = config$prediction_id)
+                              session_id = config$session_id,
+                              pred_id = config$prediction_id)
