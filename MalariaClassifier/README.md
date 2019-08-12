@@ -380,26 +380,57 @@ What can we deduct from the images that will help us accomplish the task? They a
 
 ### Understanding package: DataPreparation ###
 
-In this package, in R folder, we have a few functions needed to prepare our data for modelling. We can divide this preparation into 3 steps:
+In this package, in R folder, we have a few functions needed to prepare our data for modelling. We can divide this preparation into 2 steps:
 
 1. Splitting the data into training, validation and testing samples.
 
 For this, we have a function called "splitAndSave". It creates a new folder containing three subfolders: train, validation and test. Each of the subfolders consists of two subsets: Parasitized and Uninfected.
 
-2. Loading and labeling the data. 
+2. Loading, converting and labeling the data. 
 
-What you need to do next, is to load the images in a form of a data tensors. Two functions helping you with this: imageLoad and getAllImages. imageLoad is a function which loads an image, resizes it to 150x150 pixels and returns it in a form of an array. getAllImages is a loop over all images, which uses imageLoad to read the files and, in addition, labels them and reshapes them into data tensors. 
+What you need to do next, is to load the images in a form of a data tensors and to label them accordingly to their classes. This may seem as at least three steps, but thanks to Keras, it's really easy. The function which helps you do it, is "getAllImages". Take a look at it:
 
-3. Converting the data.
+```
+getAllImages <- function(new_data_path, folder_name) {
 
-So far, we've managed to read the images and to convert them into data tensors. Now we have to reshape the arrays so that they are ready to be processed. We need to have them in a form of (n, 150, 150, 3), where n is the number of samples and 3 indicates color depth. Moreover, it is better for modelling, when the values of an array range from 0 to 1. That's why we need to normalize pixel intensities. All of the above tasks are covered by a function "convertSamples". It returns a list of data tensors in a proper shape and their labels.
+  generator <- keras::image_data_generator(rescale=1/255)
 
-Of course, preparing the data for modelling is slightly different than preparing it for being used by the trained model. That's why we have two more functions in DataPreparation package:
+  data_generator <- keras:: flow_images_from_directory(file.path(new_data_path, folder_name),
+                                                       generator,
+                                                       target_size = c(150, 150),
+                                                       classes = c("Uninfected", "Parasitized"),
+                                                       batch_size = 5,
+                                                       class_mode = "binary")
+  return(data_generator)
+}
+```
+As you can see, getAllImages is based on two Keras's functions: 
 
-- getImagesForAnalysis - very similar to getAllImages. There is one difference - it doesn't return any labels.
-- convertImagesForAnalysis - it works like convertSamples, without converting any labels, though.
+- image_data_generator -  which generates the data and rescales pixel values from the range 1-255 into the range 0-1. We are supposed to normalize the values, because neural networks work better with smaller numbers.
+- flow_images_from_directory - which uses the previously defined generator and applies it to the data. In addition, it changes image resolutions to 150x150 and labels the data. 
 
-So basically what these two functions do is to convert real data into data tensors of a proper shape, so that they are ready to be processed by our model. 
+So what is the result of executing the function? It generates batches of RGB images in a size of 150x150 with binary labels. Every batch consists of 5 samples, as we specified in *flow_images_from_directory* using *batch_size* argument. 
+
+Of course, preparing the data for modelling is slightly different than preparing it for being used by the trained model. That's why we have one more function in DataPreparation package:
+
+- getImagesForAnalysis - its goal is to prepare the real data to be used by the model. It's very similar to *getAllImages*, but let's look at it:
+
+```
+getImagesForAnalysis <- function(image_path){
+
+  generator <- keras::image_data_generator(rescale=1/255)
+
+  data_generator <- keras:: flow_images_from_directory(image_path,
+                                                       generator,
+                                                       target_size = c(150, 150),
+                                                       batch_size = 1,
+                                                       class_mode = NULL,
+                                                       shuffle = FALSE)
+  return(data_generator)
+}
+```
+
+Can you see the differences? These are testing samples, so we don't have their labels. That's why we need to specify *class_mode* argument to NULL. Another important thing here is argument *shuffle*: it needs to be set to FALSE, because it's better, when our testing data isn't mixed during being processed by our model. 
 
 ### Understanding package: MalariaModel ###
 
