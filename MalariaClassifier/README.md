@@ -384,7 +384,7 @@ In this package, in R folder, we have a few functions needed to prepare our data
 
 1. Splitting the data into training, validation and testing samples.
 
-For this, we have a function called "splitAndSave". It creates a new folder containing three subfolders: train, validation and test. Each of the subfolders consists of two subsets: Parasitized and Uninfected.
+For this, we have a function called `splitAndSave`. It creates a new folder containing three subfolders: train, validation and test. Each of the subfolders consists of two subsets: Parasitized and Uninfected.
 
 2. Loading, converting and labeling the data. 
 
@@ -409,11 +409,11 @@ As you can see, getAllImages is based on two Keras's functions:
 - image_data_generator -  which generates the data and rescales pixel values from the range 1-255 into the range 0-1. We are supposed to normalize the values, because neural networks work better with smaller numbers.
 - flow_images_from_directory - which uses the previously defined generator and applies it to the data. In addition, it changes image resolutions to 150x150 and labels the data. 
 
-So what is the result of executing the function? It generates batches of RGB images in a size of 150x150 with binary labels. Every batch consists of 5 samples, as we specified in *flow_images_from_directory* using *batch_size* argument. 
+So what is the result of executing the function? It generates batches of RGB images in a size of 150x150 with binary labels. Every batch consists of 5 samples, as we specified in `flow_images_from_directory` using `batch_size` argument. 
 
 Of course, preparing the data for modelling is slightly different than preparing it for being used by the trained model. That's why we have one more function in DataPreparation package:
 
-- getImagesForAnalysis - its goal is to prepare the real data to be used by the model. It's very similar to *getAllImages*, but let's look at it:
+- getImagesForAnalysis - its goal is to prepare the real data to be used by the model. It's very similar to `getAllImages`, but let's look at it:
 
 ```
 getImagesForAnalysis <- function(image_path){
@@ -430,7 +430,7 @@ getImagesForAnalysis <- function(image_path){
 }
 ```
 
-Can you see the differences? These are testing samples, so we don't have their labels. That's why we need to specify *class_mode* argument to NULL. Another important thing here is argument *shuffle*: it needs to be set to FALSE, because it's better, when our testing data isn't mixed during being processed by our model. 
+Can you see the differences? These are testing samples, so we don't have their labels. That's why we need to specify `class_mode` argument to NULL. Another important thing here is argument `shuffle`: it needs to be set to FALSE, because it's better, when our testing data isn't mixed during being processed by our model. 
 
 ### Understanding package: MalariaModel ###
 

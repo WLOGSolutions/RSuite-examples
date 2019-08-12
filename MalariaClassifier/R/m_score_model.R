@@ -39,13 +39,13 @@ suppressPackageStartupMessages({
 
 model <- MalariaModel::loadModel(config$models_folder_path, config$session_id)
 
-                                        #4) USING THE MODEL FOR ANALYSIS
+#4) USING THE MODEL FOR ANALYSIS
 
-                                        #Get images for analysis
-                                        #Convert the images into a proper form
+#Get images for analysis
+#Convert the images into a proper form
 
 
-samples <- DataPreparation::getImagesForAnalysis(config$images_for_analysis)
+samples <- DataPreparation::getUnlabelledImages(config$images_for_analysis)
 
 
 #Predict classes of the test samples and the probability of each sample belonging to the predicted class
@@ -56,19 +56,19 @@ predictions <- MalariaModel::predictClassesAndProbabilities(model,
 
 MalariaModel::savePredictions(dt = predictions,
                               config$new_folder_path,
-                              session = config$session_id,
-                              number=config$prediction_id)
+                              session_id = config$session_id,
+                              pred_id = config$prediction_id)
 
 #Get the indices and the probabilities of the patients who are likely to be infected
 
 infected <- MalariaModel::getInfectedIndices(config$new_folder_path,
-                                                session = config$session_id,
-                                                number = config$prediction_id)
+                                             session_id = config$session_id,
+                                             pred_id = config$prediction_id,
+                                             threshold = 0.5)
 
 #Save predictions of the infected into a .csv file
 
 MalariaModel::saveInfected(dt = infected,
                            config$new_folder_path,
-                           session = config$session_id,
-                           number=config$prediction_id)
-
+                           session_id = config$session_id,
+                           pred_id = config$prediction_id)
