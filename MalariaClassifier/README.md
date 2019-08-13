@@ -16,8 +16,9 @@
     - [Creating Python environment](#creating-python-environment)
     - [Developing packages in project: DataPreparation](#developing-packages-in-project-datapreparation)
     - [Developing packages in project: MalariaModel](#developing-packages-in-project-malariamodel)
-    - [Creating and developing a masterscript: m_model.R](#creating-and-developing-a-masterscript-mmodelr)
-    - [Creating and developing a masterscript: m_score.R](#creating-and-developing-a-masterscript-mscorer)
+    - [Creating and developing a masterscript: m_train_model.R](#creating-and-developing-a-masterscript-mtrainmodelr)
+    - [Creating and developing a masterscript: m_score_model.R](#creating-and-developing-a-masterscript-mscoremodelr)
+    - [Creating and developing a masterscript: m_validate_model.R](#creating-and-developing-a-masterscript-mvalidatemodelr)
     - [config.txt and config_templ.txt file](#configtxt-and-configtempltxt-file)
     - [Running the project](#running-the-project)
     - [Deployment: building deployment package](#deployment-building-deployment-package)
@@ -247,15 +248,15 @@ The next step is to build the package. Again, go to Addins menu and choose "Buil
 
 We have all of the needed packages, time to create files, where we will use them.
 
-### Creating and developing a masterscript: m_model.R ###
+### Creating and developing a masterscript: m_train_model.R ###
 
-We need to create a new RScript file called "m_model.R". We will train our model there and declare where it is supposed to be saved. Because it is a masterscript, will save it in R folder in our MalariaClassifier project. The content of the masterscript, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_model.R). Take a look at it. Do you recognize the piece of code from lines 22-28? This is the 4th step of creating Python environment (if you don't remember, go [here](#creating-python-environment))
+We need to create a new RScript file called "m_train_model.R". We will train our model there and declare where it is supposed to be saved. Because it is a masterscript, will save it in R folder in our MalariaClassifier project. The content of the masterscript, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_model.R). Take a look at it. Do you recognize the piece of code from lines 22-28? This is the 4th step of creating Python environment (if you don't remember, go [here](#creating-python-environment))
 
-### Creating and developing a masterscript: m_score.R ###
+### Creating and developing a masterscript: m_score_model.R ###
 
-The next step is to create the second masterscript, called "m_score.R". This is where we will evaluate the model trained in "m_model.R". Again, we will save it in R folder in MalariaClassifier project. The content of the script, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_score.R). 
+The next step is to create the second masterscript, called "m_score_model.R". This is where we will evaluate the model trained in "m_model.R". Again, we will save it in R folder in MalariaClassifier project. The content of the script, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_score.R). 
 
-### Creating and developing a masterscript: m_use.R ###
+### Creating and developing a masterscript: m_validate_model.R ###
 
 This is a sript which will be used later by your coworkers. They will be able to predict the outcome of the examination there, based on the model you built and evaluated in the previous scripts. In order to create it, start a new RScript file, copy its content from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_use.R) and save it in R folder in your project.
 
@@ -388,7 +389,7 @@ For this, we have a function called `splitAndSave`. It creates a new folder cont
 
 2. Loading, converting and labeling the data. 
 
-What you need to do next, is to load the images in a form of a data tensors and to label them accordingly to their classes. This may seem as at least three steps, but thanks to Keras, it's really easy. The function which helps you do it, is *getAllImages*. Take a look at it:
+What you need to do next, is to load the images in a form of a data tensors and to label them accordingly to their classes. This may seem as at least three steps, but thanks to Keras, it's really easy. The function which helps you do it, is `getAllImages`. Take a look at it:
 
 ```
 getAllImages <- function(new_data_path, folder_name) {
@@ -434,10 +435,77 @@ Can you see the differences? These are testing samples, so we don't have their l
 
 ### Understanding package: MalariaModel ###
 
-This package's purpose is to store the functions that have anything to do with the modelling. So whether it is building the model or using it in any way, functions needed to do it you can find in "api_modelling.R" file in MalariaModel. 
+This package's purpose is to store the functions that have anything to do with the modelling. So whether it is building the model or using it in any way, functions needed to do it you can find in "api_modelling.R" file in MalariaModel. Functions in this script, we can divide into two groups: the ones, that create, evaluate and use the model and the ones needed to save or load it. We will start with the first group, because the functions there are a little more complex.
 
-### Understanding masterscript: m_model.R ###
+####**Functions needed to create the model**:####
 
-### Understanding masterscript: m_score.R ###
+Remember how I pointed out at the beginning of this chapter, that our images aren't very complex? Well, this is important now, while creating the model. We have to pass to the model that it doesn't have to try to spot as many details as it could try - this will help us avoid a long training time. So how to do it? Basically we have two functions that create and train the model:
 
-### Understanding masterscript: m_use.R ###
+1.  `createModel` - a function which defines the model's architecture and compiles it. What does it mean? Take a look at the function:
+```
+createModel <- function() {
+  model_architecture <- keras::keras_model_sequential() %>%
+    keras::layer_conv_2d(filters=32, kernel_size = c(3,3), activation = "relu", input_shape = c(150, 150, 3)) %>%
+    keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
+    keras::layer_conv_2d(filters=64, kernel_size = c(3,3), activation = "relu") %>%
+    keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
+    keras::layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
+    keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
+    keras::layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
+    keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
+    keras::layer_flatten() %>%
+    keras::layer_dropout(rate=0.5) %>%
+    keras::layer_dense(units=512, activation = "relu") %>%
+    keras::layer_dense(units = 1, activation = "sigmoid")
+
+  model_architecture %>% keras::compile(loss="binary_crossentropy",
+                                        optimizer = keras::optimizer_rmsprop(lr=1e-5),
+                                        metrics = c("acc"))
+  return(model_architecture)
+
+}
+```
+As you can see, the first Keras function used in `createModel` is `keras_model_sequential()`. It's nothing more, than saying "my model will consist of a few layers, which I'm going to add now". And then comes the most important part: adding the layers. The "first part" of the model's architecture consists of two types of layers: 
+
+- `layer_conv_2d` - convolutional layers used by the model to learn the patterns. The arguments `filters` and `kernel_size` passed to the model determine how precise the learning should be. The smaller the numbers of the arguments are, the bigger features of the pictures are spotted. That's why we start with setting `filters=32` and finish with `filters=128`. At first our model learns the features that are realatively easy to spot during training. As we are deeper in our neural network (further from the input image), we try to spot more nuances, therefore we increase `filters` argument. Our pictures aren't very detailed, that's why we don't need to use a lot of filters. 128 is a relatively small number, but it's perfectly sufficient for our images. And what about `kernel_size` argument? We set it to (3,3), because this is the most optimal number in our case. The pictures are quite big as for images to pass to the model, but again, their construction is pretty simple, so it isn't necessary to use the bigger size (it would be less efficient computationally). Another argument in every convolutional layer is `activation`. It's where we specify our activation function. In our case it's "relu" which maps the values into a range 0-1. And `input_shape=c(150,150,3)` in the first layer tells our network what shape our samples have. 150x150 is their resolution, while 3 indicates color depth (we have RGB images - in such case it will always be 3).
+
+- `layer_max_pooling_2d` - this type of layers is used for two reasons: it reduces the output shape within a model as well as it generalises the results of convolutional layers - they become invariant to scale or orientation changes. The argument `pool_size=c(2,2)` indicates by which to downscale (vertical, horizontal). In our case, the settings mean that the input will be halved in both spatial dimensions.
+
+After last pooling layer, we need to use:
+
+- `layer_flatten` - it reshapes the tensor to have a shape that is equal to the number of elements contained in the tensor. This is the same thing as making a 1d-array of elements. Such shape is needed while passing to the next layer.
+
+- `layer_dropout` - one of the ways to use dropout regularization technique in Keras. We set `rate=0.5` meaning that half of the features' values are substituted with 0 during training.
+
+- `layer_dense` - it's a regular densely connected neural network layer. Argument `units` denotes the output size of the layer, while in `activation`, we can declare the activation function we want to use. In the first dense layer in our model, we set `units=512` and `activation="relu"`. Basically, we could set `units` to any other value and see how it works. There isn't any pattern in choosing units number in dense layer - you need to try out a few values and see which gives the best accuracy and the lowest loss value. In the second dense layer, this number is important, though. We set `units=1`, because our expected output is a vector of probabilities. This is also the reson, why we chose "sigmoid" as the activation function. 
+
+We defined the model's architecture, so the next step is to prepare it for training. The second part of `createModel` uses Keras `compile` function. There, we define the parameters based on which our model is trained. Among these parameters is loss function (argument `loss` - we set it to "binary crossentropy", because our dataset consists of images belonging to two classes), metrics to be evaluated by the model during training and testing (argument `metrics` - in our case it's accuracy) and optimalization method (argument `optimalizer` set to "rmsprop").
+
+So, what `createModel` returns after executing it, is a compiled Keras model object, ready do be trained on the data. 
+
+2. `trainModel` - a function based on Keras `fit_generator`, which trains the model on training and validation data. Take a look at it:
+
+```
+trainModel <- function(model) {
+
+             model %>% fit_generator(train_data,
+                                     steps_per_epoch = 2,
+                                     epochs = 2,
+                                     validation_data = valid_data,
+                                     validation_steps = 5)
+  return(model)
+}
+```
+What is important here is that we *have to* use `fit_generator` instead of `fit`, because the prepared data will be passed on by generators. There are two arguments in `fit_generator` worth mentioning: `steps_per_epoch` and `validation_steps`. Their value is supposed to be set to number of samples divided by a batch size of the training and validation sets respectively. Of course, both arguments should be integers.
+
+3. `evaluateModel` - 
+4. `predictClassesAndProbabilities` - 
+5. `getInfectedIndices` - 
+
+####**Functions used to saving and loading files**####
+
+### Understanding masterscript: m_train_model.R ###
+
+### Understanding masterscript: m_score_model.R ###
+
+### Understanding masterscript: m_validate_model.R ###
