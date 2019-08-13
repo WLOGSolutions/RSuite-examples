@@ -437,9 +437,9 @@ Can you see the differences? These are testing samples, so we don't have their l
 
 This package's purpose is to store the functions that have anything to do with the modelling. So whether it is building the model or using it in any way, functions needed to do it you can find in "api_modelling.R" file in MalariaModel. Functions in this script, we can divide into two groups: the ones, that create, evaluate and use the model and the ones needed to save or load it. We will start with the first group, because the functions there are a little more complex.
 
-**#### Functions needed to create the model ####**
+#### Functions needed to create the model ####
 
-Remember how I pointed out at the beginning of this chapter, that our images aren't very complex? Well, this is important now, while creating the model. We have to pass to the model that it doesn't have to try to spot as many details as it could try - this will help us avoid a long training time. So how to do it? Basically we have two functions that create and train the model:
+Remember how I pointed out at the beginning of this chapter, that our images aren't very complex? Well, this is important now, while creating the model. We have to pass to the model that it doesn't have to try to spot as many details as it could - this will help us avoid a long training time. So how to do it? Basically we have two functions that create and train the model:
 
 1.  `createModel` - a function which defines the model's architecture and compiles it. What does it mean? Take a look at the function:
 ```
@@ -502,7 +502,7 @@ What is important here is that we *have to* use `fit_generator` instead of `fit`
 4. `predictClassesAndProbabilities` - 
 5. `getInfectedIndices` - 
 
-**#### Functions used to saving and loading files ####**
+#### Functions used to saving and loading files ####
 
 ### Understanding masterscript: m_train_model.R ###
 
