@@ -24,7 +24,15 @@
     - [Deployment: building deployment package](#deployment-building-deployment-package)
     - [Deployment: installing deployment package](#deployment-installing-deployment-package)
     - [Summary](#summary)
-
+- [Understanding malaria project step by step](#understanding-malaria-project-step-by-step)
+    - [Introduction](#introduction)
+    - [Understanding the task](#understanding-the-task)
+    - [Understanding package: DataPreparation](#understanding-package-datapreparation)
+    - [Understanding package: MalariaModel](#understanding-package-malariamodel)
+    - [Understanding masterscript: m_train_model.R](#understanding-masterscript-mtrainmodelr)
+    - [[Understanding masterscript: m_validate_model.R](#understanding-masterscript-mvalidatemodelr)]
+    - [Understanding masterscript: m_score_model.R](#understanding-masterscript-mscoremodelr)
+    
 <!-- markdown-toc end -->
 
 ## Introduction ##
@@ -389,10 +397,10 @@ For this, we have a function called `splitAndSave`. It creates a new folder cont
 
 2. Loading, converting and labeling the data. 
 
-What you need to do next, is to load the images in a form of a data tensors and to label them accordingly to their classes. This may seem as at least three steps, but thanks to Keras, it's really easy. The function which helps you do it, is `getAllImages`. Take a look at it:
+What you need to do next, is to load the images in a form of a data tensors and to label them accordingly to their classes. This may seem as at least three steps, but thanks to Keras, it's really easy. The function which helps you do it, is `getLabelledImages`. Take a look at it:
 
 ```
-getAllImages <- function(new_data_path, folder_name) {
+getLabelledImages <- function(new_data_path, folder_name) {
 
   generator <- keras::image_data_generator(rescale=1/255)
 
@@ -405,7 +413,7 @@ getAllImages <- function(new_data_path, folder_name) {
   return(data_generator)
 }
 ```
-As you can see, getAllImages is based on two Keras's functions: 
+As you can see, `getLabelledImages` is based on two Keras's functions: 
 
 - image_data_generator -  which generates the data and rescales pixel values from the range 1-255 into the range 0-1. We are supposed to normalize the values, because neural networks work better with smaller numbers.
 - flow_images_from_directory - which uses the previously defined generator and applies it to the data. In addition, it changes image resolutions to 150x150 and labels the data. 
@@ -414,10 +422,10 @@ So what is the result of executing the function? It generates batches of RGB ima
 
 Of course, preparing the data for modelling is slightly different than preparing it for being used by the trained model. That's why we have one more function in DataPreparation package:
 
-- getImagesForAnalysis - its goal is to prepare the real data to be used by the model. It's very similar to `getAllImages`, but let's look at it:
+- getUnlabelledImages - its goal is to prepare the real data to be used by the model. It's very similar to `getLabelledImages`, but let's look at it:
 
 ```
-getImagesForAnalysis <- function(image_path){
+getUnlabelled <- function(image_path){
 
   generator <- keras::image_data_generator(rescale=1/255)
 
@@ -431,11 +439,11 @@ getImagesForAnalysis <- function(image_path){
 }
 ```
 
-Can you see the differences? These are testing samples, so we don't have their labels. That's why we need to specify `class_mode` argument to NULL. Another important thing here is argument `shuffle`: it needs to be set to FALSE, because it's better, when our testing data isn't mixed during being processed by our model. 
+Can you see the differences? These are testing samples, so we don't have their labels. That's why we need to specify `class_mode` argument to "NULL". Another important thing here is argument `shuffle`: it needs to be set to FALSE, because it's better, when our testing data isn't mixed during being processed by our model. And be careful. While specifying `image_path`, you need to pass the path to the folder, where another folder (only one - the images are unlabelled, so they are stored altogether) is present. This is because Keras generators use folders to distiguish between classes. If your `image_path` is the path to the images, the generator won't find any samples, because it won't see any classes.
 
 ### Understanding package: MalariaModel ###
 
-This package's purpose is to store the functions that have anything to do with the modelling. So whether it is building the model or using it in any way, functions needed to do it you can find in "api_modelling.R" file in MalariaModel. Functions in this script, we can divide into two groups: the ones, that create, evaluate and use the model and the ones needed to save or load it. We will start with the first group, because the functions there are a little more complex.
+This package's purpose is to store the functions that have anything to do with the modelling. So whether it is building the model or using it in any way, functions needed to do it you can find in "api_modelling.R" file in MalariaModel. Functions in this script, we can divide into two groups: the ones, that create, evaluate and use the model and the ones needed to save or load the files. We will start with the first group, because the functions there are a little more interesting.
 
 #### Functions needed to create the model ####
 
@@ -498,14 +506,78 @@ trainModel <- function(model) {
 ```
 What is important here is that we *have to* use `fit_generator` instead of `fit`, because the prepared data will be passed on by generators. There are two arguments in `fit_generator` worth mentioning: `steps_per_epoch` and `validation_steps`. Their value is supposed to be set to number of samples divided by a batch size of the training and validation sets respectively. Of course, both arguments should be integers.
 
-3. `evaluateModel` - 
-4. `predictClassesAndProbabilities` - 
-5. `getInfectedIndices` - 
+3. `evaluateModel` - it simply evaluates the model on the testing data generator. It classifies the data and then compares the results with the real labels. As a result, we get accuracy and loss of our model stored in a data frame.
 
-#### Functions used to saving and loading files ####
+4. `predictClassesAndProbabilities` - the function returns classes and probabilities of belonging to the predicted class for the samples from the testing dataset. Take a quick look at the function:
+
+```
+predictClassesAndProbabilities <- function(model, test_data){
+
+
+  probabilities <- keras::predict_generator(model, test_data, steps = test_data$n, verbose = 1)
+  classes <- ifelse(probabilities > 0.5, 1, 0)
+  index <- test_data$filenames
+
+  dt <- data.table::data.table(Id = index,
+                               Class = classes,
+                               Probability = probabilities)
+  colnames(dt) <- c("Id", "Class", "Probability")
+
+  return(dt)
+}
+```
+As you can see, it uses Keras `predict_generator` function, which...
+
+5. `getInfectedIndices` - it reads the file with predictions and returns a data frame with the index and the probability of a person being infected. It looks only among people who have been identified with class 1 (parasitized) during the examination. In addition, there is `treshold` parameter, which denotes the probability above which we want to have the person's characteristics written in the data frame.
+
+#### Functions used for saving and loading files ####
+
+1. `saveModel` - saves the model into a hdf5 file using Keras `save_model_hdf5` function. After executing the function, you can find the trained model on the previously specified saving path, under the name "model + session_id".
+
+2. `getSessionId` - the function, which is based on a numeric version of `Sys.time()`, generates `session_id`. Note, that for each trained model, a different `session_id` is assigned to its name. Later, while making predictions, they are saved in a "work + session_id" folder, where session_id is the used model's session_id.
+
+3. `loadModel` - loads the model which was previously saved into a hdf5 file. It uses Keras `load_model_hdf5` function under the hood.
+
+4. `savePredictions`, `saveInfected` - they both save the previously created data frames into .csv files. At first they check whether a folder "work + session_id" exists and if not, they create it. After executing `savePredictions`, you will find a file called "predictions + pred_id" there, while after executing `saveInfected`, you will find a file called "infected + pred_id".
 
 ### Understanding masterscript: m_train_model.R ###
 
-### Understanding masterscript: m_score_model.R ###
+This masterscript is a place to create the model. So what do we do here exactly? 
+
+1. We use `splitAndSave` function, where we specify the number of samples using config file. The dataset is split and saved under a chosen folder path.
+
+2. We use `getLabelledImages` twice - to generate training and validation samples in a proper form.
+
+3. We use `createModel` and `trainModel` functions, which enable us to obtain a trained model.
+
+4. We use `getSessionId` and `saveModel` to save the trained model in our "Models" folder under a name "model + session_id"
+
+After running the whole masterscript, we should obtain a trained model, saved on our disk.
 
 ### Understanding masterscript: m_validate_model.R ###
+
+This masterscript is a place to evaluate the previously created model. We can do it, by using:
+
+1. `loadModel` to read the model created in "m_train_model.R" called "model + session_id".
+
+2. `getUnlabelledImages` to generate testing data in a proper form.
+
+3. `evaluateModel` and `saveModelEvaluation` to evaluate our model on the testing samples and save the evaluation into a .csv file.
+
+4. `predictClassesAndProbabilities` and `savePredictions` to check how the samples from the testing data have been classified and to save the results.
+
+After running the whole masterscript, we should obtain two .csv files: "evaluation" and "prediction + pred_id" saved in our work folder called "work + session_id". 
+
+### Understanding masterscript: m_score_model.R ###
+
+This masterscript is designed as a place, where real data should be tested. We can do it, by using:
+
+1. `loadModel` to read the model created in "m_train_model.R" called "model + session_id".
+
+2. `getUnlabelledImages` to generate testing data in a proper form. 
+
+3. `predictClassesAndProbabilities` and `savePredictions` to see how the samples have been classified and to save the results.
+
+4. `getInfectedIndices` and `saveInfected` to extract only these samples, which are likely to be infected and to save them in a separate .csv file.
+
+After running the whole masterscript, we should obrain two .csv files: "predictions + pred_id" and "infected + pred_id" saved in our work folder called "work + session_id". 
