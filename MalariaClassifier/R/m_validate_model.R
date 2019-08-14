@@ -44,7 +44,7 @@ model <- MalariaModel::loadModel(config$models_folder_path, config$session_id)
                                         #Get testing samples
                                         #Convert the samples into a proper form
 
-test_data <- DataPreparation::getLabeledImages(config$new_folder_path, "test")
+test_data <- DataPreparation::getUnlabelledImages(config$new_folder_path, "test")
 
 #Evaluate the trained model
 
