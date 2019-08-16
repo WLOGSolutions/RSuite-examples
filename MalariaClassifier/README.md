@@ -19,7 +19,7 @@ Author: Urszula Białończyk
     - [Creating Python environment](#creating-python-environment)
     - [Developing packages in project: DataPreparation](#developing-packages-in-project-datapreparation)
     - [Developing packages in project: MalariaModel](#developing-packages-in-project-malariamodel)
-    - [Creating and developing a masterscript: m_train_model.R](#creating-and-developing-a-masterscript-m_train)modelr)
+    - [Creating and developing a masterscript: m_train_model.R](#creating-and-developing-a-masterscript-m_train_modelr)
     - [Creating and developing a masterscript: m_score_model.R](#creating-and-developing-a-masterscript-m_score_modelr)
     - [Creating and developing a masterscript: m_validate_model.R](#creating-and-developing-a-masterscript-m_validate_modelr)
     - [config.txt and config_templ.txt file](#configtxt-and-configtempltxt-file)
