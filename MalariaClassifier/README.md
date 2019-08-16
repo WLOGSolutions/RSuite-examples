@@ -19,15 +19,9 @@ Author: Urszula Białończyk
     - [Creating Python environment](#creating-python-environment)
     - [Developing packages in project: DataPreparation](#developing-packages-in-project-datapreparation)
     - [Developing packages in project: MalariaModel](#developing-packages-in-project-malariamodel)
-<<<<<<< HEAD
-    - [Creating and developing a masterscript: m_train_model.R](#creating-and-developing-a-masterscript-mtrainmodelr)
-    - [Creating and developing a masterscript: m_score_model.R](#creating-and-developing-a-masterscript-mvalidatemodelr)
-    - [Creating and developing a masterscript: m_validate_model.R](#creating-and-developing-a-masterscript-mscoremodelr)
-=======
     - [Creating and developing a masterscript: m_train_model.R](#creating-and-developing-a-masterscript-m_train)modelr)
     - [Creating and developing a masterscript: m_score_model.R](#creating-and-developing-a-masterscript-m_score_modelr)
     - [Creating and developing a masterscript: m_validate_model.R](#creating-and-developing-a-masterscript-m_validate_modelr)
->>>>>>> 5d3b01768ee43821a522c81188b287cc97dc8bf6
     - [config.txt and config_templ.txt file](#configtxt-and-configtempltxt-file)
     - [Running the project](#running-the-project)
     - [Deployment: building deployment package](#deployment-building-deployment-package)
@@ -38,19 +32,12 @@ Author: Urszula Białończyk
     - [Understanding the task](#understanding-the-task)
     - [Understanding package: DataPreparation](#understanding-package-datapreparation)
     - [Understanding package: MalariaModel](#understanding-package-malariamodel)
-<<<<<<< HEAD
-    - [Understanding masterscript: m_train_model.R](#understanding-masterscript-mtrainmodelr)
-    - [Understanding masterscript: m_validate_model.R](#understanding-masterscript-mvalidatemodelr)
-    - [Understanding masterscript: m_score_model.R](#understanding-masterscript-mscoremodelr)
-    
-=======
         - [Functions needed to create the model](#functions-needed-to-create-the-model)
         - [Functions used for saving and loading files](#functions-used-for-saving-and-loading-files)
     - [Understanding masterscript: m_train_model.R](#understanding-masterscript-m_train_modelr)
     - [Understanding masterscript: m_validate_model.R](#understanding-masterscript-m_validate_modelr)
     - [Understanding masterscript: m_score_model.R](#understanding-masterscript-m_score_modelr)
 
->>>>>>> 5d3b01768ee43821a522c81188b287cc97dc8bf6
 <!-- markdown-toc end -->
 
 
