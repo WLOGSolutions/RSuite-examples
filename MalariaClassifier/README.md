@@ -1,7 +1,10 @@
 # Building a Malaria Classifier from scratch using [R](https://r-project.org), [R Suite](https://rsuite.io) and [R Interface to Keras](https://keras.rstudio.com/)
 
+Author: Urszula Białończyk
+
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
-**Table of Contents**
+
+## Table of Contents ##
 
 - [Introduction](#introduction)
 - [Preliminary requirements](#preliminary-requirements)
@@ -16,24 +19,27 @@
     - [Creating Python environment](#creating-python-environment)
     - [Developing packages in project: DataPreparation](#developing-packages-in-project-datapreparation)
     - [Developing packages in project: MalariaModel](#developing-packages-in-project-malariamodel)
-    - [Creating and developing a masterscript: m_train_model.R](#creating-and-developing-a-masterscript-mtrainmodelr)
-    - [Creating and developing a masterscript: m_score_model.R](#creating-and-developing-a-masterscript-mscoremodelr)
-    - [Creating and developing a masterscript: m_validate_model.R](#creating-and-developing-a-masterscript-mvalidatemodelr)
+    - [Creating and developing a masterscript: m_train_model.R](#creating-and-developing-a-masterscript-m_train)modelr)
+    - [Creating and developing a masterscript: m_score_model.R](#creating-and-developing-a-masterscript-m_score_modelr)
+    - [Creating and developing a masterscript: m_validate_model.R](#creating-and-developing-a-masterscript-m_validate_modelr)
     - [config.txt and config_templ.txt file](#configtxt-and-configtempltxt-file)
     - [Running the project](#running-the-project)
     - [Deployment: building deployment package](#deployment-building-deployment-package)
     - [Deployment: installing deployment package](#deployment-installing-deployment-package)
     - [Summary](#summary)
 - [Understanding malaria project step by step](#understanding-malaria-project-step-by-step)
-    - [Introduction](#introduction)
+    - [Introduction](#introduction-1)
     - [Understanding the task](#understanding-the-task)
     - [Understanding package: DataPreparation](#understanding-package-datapreparation)
     - [Understanding package: MalariaModel](#understanding-package-malariamodel)
-    - [Understanding masterscript: m_train_model.R](#understanding-masterscript-mtrainmodelr)
-    - [[Understanding masterscript: m_validate_model.R](#understanding-masterscript-mvalidatemodelr)]
-    - [Understanding masterscript: m_score_model.R](#understanding-masterscript-mscoremodelr)
-    
+        - [Functions needed to create the model](#functions-needed-to-create-the-model)
+        - [Functions used for saving and loading files](#functions-used-for-saving-and-loading-files)
+    - [Understanding masterscript: m_train_model.R](#understanding-masterscript-m_train_modelr)
+    - [Understanding masterscript: m_validate_model.R](#understanding-masterscript-m_validate_modelr)
+    - [Understanding masterscript: m_score_model.R](#understanding-masterscript-m_score_modelr)
+
 <!-- markdown-toc end -->
+
 
 ## Introduction ##
 
@@ -450,6 +456,7 @@ This package's purpose is to store the functions that have anything to do with t
 Remember how I pointed out at the beginning of this chapter, that our images aren't very complex? Well, this is important now, while creating the model. We have to pass to the model that it doesn't have to try to spot as many details as it could - this will help us avoid a long training time. So how to do it? Basically we have two functions that create and train the model:
 
 1.  `createModel` - a function which defines the model's architecture and compiles it. What does it mean? Take a look at the function:
+
 ```
 createModel <- function() {
   model_architecture <- keras::keras_model_sequential() %>%
@@ -473,6 +480,7 @@ createModel <- function() {
 
 }
 ```
+
 As you can see, the first Keras function used in `createModel` is `keras_model_sequential()`. It's nothing more, than saying "my model will consist of a few layers, which I'm going to add now". And then comes the most important part: adding the layers. The "first part" of the model's architecture consists of two types of layers: 
 
 - `layer_conv_2d` - convolutional layers used by the model to learn the patterns. The arguments `filters` and `kernel_size` passed to the model determine how precise the learning should be. The smaller the numbers of the arguments are, the bigger features of the pictures are spotted. That's why we start with setting `filters=32` and finish with `filters=128`. At first our model learns the features that are realatively easy to spot during training. As we are deeper in our neural network (further from the input image), we try to spot more nuances, therefore we increase `filters` argument. Our pictures aren't very detailed, that's why we don't need to use a lot of filters. 128 is a relatively small number, but it's perfectly sufficient for our images. And what about `kernel_size` argument? We set it to (3,3), because this is the most optimal number in our case. The pictures are quite big as for images to pass to the model, but again, their construction is pretty simple, so it isn't necessary to use the bigger size (it would be less efficient computationally). Another argument in every convolutional layer is `activation`. It's where we specify our activation function. In our case it's "relu" which maps the values into a range 0-1. And `input_shape=c(150,150,3)` in the first layer tells our network what shape our samples have. 150x150 is their resolution, while 3 indicates color depth (we have RGB images - in such case it will always be 3).
