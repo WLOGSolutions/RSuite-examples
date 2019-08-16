@@ -17,8 +17,8 @@
     - [Developing packages in project: DataPreparation](#developing-packages-in-project-datapreparation)
     - [Developing packages in project: MalariaModel](#developing-packages-in-project-malariamodel)
     - [Creating and developing a masterscript: m_train_model.R](#creating-and-developing-a-masterscript-mtrainmodelr)
-    - [Creating and developing a masterscript: m_score_model.R](#creating-and-developing-a-masterscript-mscoremodelr)
-    - [Creating and developing a masterscript: m_validate_model.R](#creating-and-developing-a-masterscript-mvalidatemodelr)
+    - [Creating and developing a masterscript: m_score_model.R](#creating-and-developing-a-masterscript-mvalidatemodelr)
+    - [Creating and developing a masterscript: m_validate_model.R](#creating-and-developing-a-masterscript-mscoremodelr)
     - [config.txt and config_templ.txt file](#configtxt-and-configtempltxt-file)
     - [Running the project](#running-the-project)
     - [Deployment: building deployment package](#deployment-building-deployment-package)
@@ -30,7 +30,7 @@
     - [Understanding package: DataPreparation](#understanding-package-datapreparation)
     - [Understanding package: MalariaModel](#understanding-package-malariamodel)
     - [Understanding masterscript: m_train_model.R](#understanding-masterscript-mtrainmodelr)
-    - [[Understanding masterscript: m_validate_model.R](#understanding-masterscript-mvalidatemodelr)]
+    - [Understanding masterscript: m_validate_model.R](#understanding-masterscript-mvalidatemodelr)
     - [Understanding masterscript: m_score_model.R](#understanding-masterscript-mscoremodelr)
     
 <!-- markdown-toc end -->
@@ -258,15 +258,15 @@ We have all of the needed packages, time to create files, where we will use them
 
 ### Creating and developing a masterscript: m_train_model.R ###
 
-We need to create a new RScript file called "m_train_model.R". We will train our model there and declare where it is supposed to be saved. Because it is a masterscript, will save it in R folder in our MalariaClassifier project. The content of the masterscript, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_model.R). Take a look at it. Do you recognize the piece of code from lines 22-28? This is the 4th step of creating Python environment (if you don't remember, go [here](#creating-python-environment))
-
-### Creating and developing a masterscript: m_score_model.R ###
-
-The next step is to create the second masterscript, called "m_score_model.R". This is where we will evaluate the model trained in "m_model.R". Again, we will save it in R folder in MalariaClassifier project. The content of the script, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_score.R). 
+We need to create a new RScript file called "m_train_model.R". We will train our model there and declare where it is supposed to be saved. Because it is a masterscript, will save it in R folder in our MalariaClassifier project. The content of the masterscript, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_train_model.R). Take a look at it. Do you recognize the piece of code from lines 22-28? This is the 4th step of creating Python environment (if you don't remember, go [here](#creating-python-environment))
 
 ### Creating and developing a masterscript: m_validate_model.R ###
 
-This is a sript which will be used later by your coworkers. They will be able to predict the outcome of the examination there, based on the model you built and evaluated in the previous scripts. In order to create it, start a new RScript file, copy its content from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_use.R) and save it in R folder in your project.
+The next step is to create the second masterscript, called "m_score_model.R". This is where we will evaluate the model trained in "m_train_model.R". Again, we will save it in R folder in MalariaClassifier project. The content of the script, you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_validate_model.R). 
+
+### Creating and developing a masterscript: m_score_model.R ###
+
+This is a sript which will be used later by your coworkers. They will be able to predict the outcome of the examination there, based on the model you built and evaluated in the previous scripts. In order to create it, start a new RScript file, copy its content from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/R/m_score_model.R) and save it in R folder in your project.
 
 ### config.txt and config_templ.txt file ###
 
@@ -291,15 +291,15 @@ Of course all of the paths to folders are supposed to be the paths to folders wh
 
 ### Running the project ###
 
-So now we have everything we need to build a malaria classifier in R. The only thing you need to do, is to run two of the masterscripts: first "m_model.R", then "m_score.R". 
+So now we have everything we need to build a malaria classifier in R. The only thing you need to do, is to run two of the masterscripts: first "m_train_model.R", then "m_validate_model.R". 
 
-When it comes to "m_model.R" - don't worry if it takes a while to train your model - the amount of time needed depends on the hardware you use. When you installed everything you needed properly and declared the paths to folders as you were supposed to, after executing the whole code, this should appear in your Models folder:
+When it comes to "m_train_model.R" - don't worry if it takes a while to train your model - the amount of time needed depends on the hardware you use. When you installed everything you needed properly and declared the paths to folders as you were supposed to, after executing the whole code, this should appear in your Models folder:
 
 ![screenshot of the Models folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/insidemodels.png)
 
 Do you see the number in the name of the model? This number is the session_id. So if you have your model now, please take a look at how it's called (your number will be different than mine) and copy the number from its name to session_id in your config.txt file. If you've done it, you can run the second masterscript.
 
-After running "m_score.R", your Work folder should consist of:
+After running "m_validate_model.R", your Work folder should consist of:
 
 ![screenshot of the Work folder]()
 
@@ -332,8 +332,8 @@ What's inside them? In R folder, you will find the masterscripts. In libs, the p
 3. Fill config_templ.txt file as it states in the instructions. Declare path to folders, files and number of samples. In particular:
 
 - **new_folder_path** - bear in mind that it should be the path to the folder "Work" you've just created. This way you will have all your results in one place. 
-- **id_test, id_valid, id_train** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_score.R" or "m_use.R"). They indicate the indices of training, validation and testing samples (both parasitized and uninfected): [1, id_train] is the interval of the indices of training samples, [id_train+1, id_valid] of validation samples and [it_valid+1, id_test] of testing samples.
-- **session_id** - this is extremely important for people using "m_score.R" and "m_use.R". This id will indicate which of the models to use. Each of the models from "Models" folder will be named "model + number". And this number of a wanted model is what you're supposed to type in session_id.
+- **id_test, id_valid, id_train** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_validate_model.R" or "m_score_model.R"). They indicate the indices of training, validation and testing samples (both parasitized and uninfected): [1, id_train] is the interval of the indices of training samples, [id_train+1, id_valid] of validation samples and [it_valid+1, id_test] of testing samples.
+- **session_id** - this is extremely important for people using "m_validate_model.R" and "m_score_model.R". This id will indicate which of the models to use. Each of the models from "Models" folder will be named "model + number". And this number of a wanted model is what you're supposed to type in session_id.
 - **images_for_analysis** - only for your coworkers. The path to a folder where they store folder with the samples to be tested using the models you built.
 - **prediction_id** - also, very importand for your coworkers. When they want to use the same model to test different samples, they need to distinguish the files with the results somehow. And this is why they need to fill "prediction_id". It will appear in the name of the file with predictions (the file will be called "predictions + prediction_id").
 
@@ -341,11 +341,11 @@ What's inside them? In R folder, you will find the masterscripts. In libs, the p
 ```
 Rscript m_model.R
 ```
-This command should start executing the code from the masterscript "m_model.R". Your model is supposed to be trained and saved in the "Models" folder. When everything has run properly, type:
+This command should start executing the code from the masterscript "m_train_model.R". Your model is supposed to be trained and saved in the "Models" folder. When everything has run properly, type:
 ```
 Rscript m_score.R
 ```
-This should execute the code from the masterscript "m_score.R". After everything has run properly, in your "Work" folder, you should find the following files:
+This should execute the code from the masterscript "m_validate_model.R". After everything has run properly, in your "Work" folder, you should find the following files:
 
 <screenshot of a work folder>
 
@@ -439,7 +439,7 @@ getUnlabelled <- function(image_path){
 }
 ```
 
-Can you see the differences? These are testing samples, so we don't have their labels. That's why we need to specify `class_mode` argument to "NULL". Another important thing here is argument `shuffle`: it needs to be set to FALSE, because it's better, when our testing data isn't mixed during being processed by our model. And be careful. While specifying `image_path`, you need to pass the path to the folder, where another folder (only one - the images are unlabelled, so they are stored altogether) is present. This is because Keras generators use folders to distiguish between classes. If your `image_path` is the path to the images, the generator won't find any samples, because it won't see any classes.
+Can you see the differences? These are testing samples, so we don't have their labels. That's why we need to specify `class_mode` argument to "NULL". Another important thing here is argument `shuffle`: it needs to be set to FALSE, because it's better, when our testing data isn't mixed during being processed by our model. And be careful. While specifying `image_path`, you need to pass the path to the folder, where another folder (only one - the images are unlabelled, so they are stored altogether) is present. This is because Keras generators use folders to distiguish between classes. If your `image_path` is the direct path to the images, the generator won't find any samples, because it won't see any classes.
 
 ### Understanding package: MalariaModel ###
 
@@ -447,7 +447,7 @@ This package's purpose is to store the functions that have anything to do with t
 
 #### Functions needed to create the model ####
 
-Remember how I pointed out at the beginning of this chapter, that our images aren't very complex? Well, this is important now, while creating the model. We have to pass to the model that it doesn't have to try to spot as many details as it could - this will help us avoid a long training time. So how to do it? Basically we have two functions that create and train the model:
+Remember how I pointed out at the beginning of this chapter, that our images aren't very complex? Well, this is important now, while creating the model. We have to pass to the model that it doesn't have to try to spot as many details as it could - this will help us shorten training time. So how to do it? Basically we have two functions that create and train the model:
 
 1.  `createModel` - a function which defines the model's architecture and compiles it. What does it mean? Take a look at the function:
 ```
@@ -528,7 +528,7 @@ predictClassesAndProbabilities <- function(model, test_data){
 ```
 As you can see, it uses Keras `predict_generator` function, which...
 
-5. `getInfectedIndices` - it reads the file with predictions and returns a data frame with the index and the probability of a person being infected. It looks only among people who have been identified with class 1 (parasitized) during the examination. In addition, there is `treshold` parameter, which denotes the probability above which we want to have the person's characteristics written in the data frame.
+5. `getInfectedIndices` - it reads the file with predictions and returns a data frame with the index and the probability of a person being infected. It looks only among people who have been identified with class 1 (parasitized) during the examination. In addition, there is `treshold` parameter, which denotes the probability above which we want to have the sample's characteristics written in the data frame.
 
 #### Functions used for saving and loading files ####
 
@@ -542,15 +542,15 @@ As you can see, it uses Keras `predict_generator` function, which...
 
 ### Understanding masterscript: m_train_model.R ###
 
-This masterscript is a place to create the model. So what do we do here exactly? 
+This masterscript is a place to create the model. We can do it by using: 
 
-1. We use `splitAndSave` function, where we specify the number of samples using config file. The dataset is split and saved under a chosen folder path.
+1. `splitAndSave` function, where we specify the number of samples using config file. The dataset is split and saved under a chosen folder path.
 
-2. We use `getLabelledImages` twice - to generate training and validation samples in a proper form.
+2. `getLabelledImages` called twice - to generate training and validation samples in a proper form.
 
-3. We use `createModel` and `trainModel` functions, which enable us to obtain a trained model.
+3. `createModel` and `trainModel` functions to obtain a trained model.
 
-4. We use `getSessionId` and `saveModel` to save the trained model in our "Models" folder under a name "model + session_id"
+4. `getSessionId` and `saveModel` to save the trained model in our "Models" folder under a name "model + session_id"
 
 After running the whole masterscript, we should obtain a trained model, saved on our disk.
 
