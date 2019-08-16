@@ -230,7 +230,7 @@ if (grepl("darwin|linux-gnu", R.version$os)) {
 }
 
 ```
-in your masterscript (just after the beginning). This piece of code will automatically detect whether you're operating on Windows or Linux/MacOS, therefore it will set a peroper file path. I know we haven't created any masterscripts yet, this is the only step you're supposed to fulfill later. Don't worry, I will remind you to do it. 
+in your masterscript (just after the beginning). This piece of code will automatically detect whether you're operating on Windows or Linux/MacOS, as a result it will set a peroper file path. I know we haven't created any masterscripts yet, this is the only step you're supposed to fulfill later. Don't worry, I will remind you to do it. 
 
 Since we have the framework of our Malaria Classifier project, we can move on to developing our packages now.
 
@@ -290,16 +290,15 @@ Config.txt file is where you declare paths to folders, number of samples etc. At
 
 After running the code, open config.txt file which appeared in MalariaClassifier project folder and fill it similarily to mine:
 
-![Config.txt]()
+![Config.txt](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/config.png)
 
-Of course all of the paths to folders are supposed to be the paths to folders where YOU store your data. One more thing: we don't have our model yet, so we don't know our session_id number. Let's leave this for now, I will tell you when and how to fill it.
+Of course all of the paths to folders are supposed to be the paths to folders where YOU store your data. One more thing: we don't have our model yet, so we don't know our session_id number. Let's leave this for now, I will tell you when and how to fill it. And when it comes to images_for_analysis: you can copy a few images, both parasitized and uninfected, to a single folder. They will serve later as your "real" data.
  
-
 ### Running the project ###
 
 So now we have everything we need to build a malaria classifier in R. The only thing you need to do, is to run two of the masterscripts: first "m_train_model.R", then "m_validate_model.R". 
 
-When it comes to "m_train_model.R" - don't worry if it takes a while to train your model - the amount of time needed depends on the hardware you use. When you installed everything you needed properly and declared the paths to folders as you were supposed to, after executing the whole code, this should appear in your Models folder:
+When it comes to "m_train_model.R" - don't worry if it takes a while to train your model - the amount of time needed depends on the hardware you use. After installing everything properly and declaring the paths to folders as you were supposed to, after executing the whole code, this should appear in your Models folder:
 
 ![screenshot of the Models folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/insidemodels.png)
 
@@ -307,7 +306,7 @@ Do you see the number in the name of the model? This number is the session_id. S
 
 After running "m_validate_model.R", your Work folder should consist of:
 
-![screenshot of the Work folder]()
+![screenshot of the Work folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/work_folder.png)
 
 Of course the number in the name of subfolder "work + number" you see will be different on your computer - this is because of the fact that its name is based on session_id. Inside this folder, you should find two files: "evaluation_statistics" and "predictions 1".
 
@@ -338,22 +337,28 @@ What's inside them? In R folder, you will find the masterscripts. In libs, the p
 3. Fill config_templ.txt file as it states in the instructions. Declare path to folders, files and number of samples. In particular:
 
 - **new_folder_path** - bear in mind that it should be the path to the folder "Work" you've just created. This way you will have all your results in one place. 
-- **id_test, id_valid, id_train** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_validate_model.R" or "m_score_model.R"). They indicate the indices of training, validation and testing samples (both parasitized and uninfected): [1, id_train] is the interval of the indices of training samples, [id_train+1, id_valid] of validation samples and [it_valid+1, id_test] of testing samples.
+- **id_test, id_valid, id_train** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_validate_model.R" or "m_score_model.R"). They denote the indices of training, validation and testing samples (both parasitized and uninfected): [1, id_train] is the interval of the indices of training samples, [id_train+1, id_valid] of validation samples and [it_valid+1, id_test] of testing samples.
 - **session_id** - this is extremely important for people using "m_validate_model.R" and "m_score_model.R". This id will indicate which of the models to use. Each of the models from "Models" folder will be named "model + number". And this number of a wanted model is what you're supposed to type in session_id.
 - **images_for_analysis** - only for your coworkers. The path to a folder where they store folder with the samples to be tested using the models you built.
 - **prediction_id** - also, very importand for your coworkers. When they want to use the same model to test different samples, they need to distinguish the files with the results somehow. And this is why they need to fill "prediction_id". It will appear in the name of the file with predictions (the file will be called "predictions + prediction_id").
 
 4. Open the terminal and go to the folder "Production". Then open R folder and type:
 ```
-Rscript m_model.R
+Rscript m_train_model.R
 ```
 This command should start executing the code from the masterscript "m_train_model.R". Your model is supposed to be trained and saved in the "Models" folder. When everything has run properly, type:
 ```
-Rscript m_score.R
+Rscript m_validate_model.R
 ```
-This should execute the code from the masterscript "m_validate_model.R". After everything has run properly, in your "Work" folder, you should find the following files:
+This should execute the code from the masterscript "m_validate_model.R". After everything has run properly, in your "Work" folder, in subfolder "work + session_id", you should find the following files:
 
-<screenshot of a work folder>
+[insideWork](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/insideWork.png)
+
+Now you can check out how "m_score_model.R" works. Set "prediction_id" number to 2 in your config file and type:
+```
+Rscript m_score_model.R
+```
+in your console. A new file called "predictions 2" should appear in the subfolder "work + session_id".
 
 Take a quick look on how the content of MalariaClassifier folder presents itself now:
 
@@ -361,7 +366,7 @@ Take a quick look on how the content of MalariaClassifier folder presents itself
 
 As you can see, there is one new folder - sbox. This is in case we require any packages in the masterscripts using R "library()" function - we load it only locally then. There is a new file too - config.txt. Its content was automatically copied from config_templ.txt.
 
-And this is it. You created your first Malaria Classifier using R and prepared it for deployment. There is nothing left to do, than to present to your friends how to use it. By the way, [this subsection](#deployment:-installing-deployment-package) is a great start for the description of how to use your solution, which should be given to your coworkers. This way they will know exactly what to do with the ZIP file you gave them. And if they want to know how you created the model - click [here]().
+And this is it. You created your first Malaria Classifier using R and prepared it for deployment. There is nothing left to do, than to present to your friends how to use it. By the way, [this subsection](#deployment-installing-deployment-package) is a great start for the description of how to use your solution, which should be given to your coworkers. This way they will know exactly what to do with the ZIP file you gave them. And if they want to know how you created the model - click [here](#understanding-malaria-project-step-by-step).
 
 ### Summary ###
 
@@ -373,6 +378,7 @@ So, let's sum up what we've just done:
 
 This means we successfully completed the task described in the introduction. If you're interested in creating and developing similar projects, please check out these articles:
 
+- Classifying handwritten digits (MNIST dataset) using Keras and Shiny [click here](https://github.com/WLOGSolutions/Keras_and_Shiny)
 -
 
 And if you want to know exactly how and why the particular parts of the R code were created, the next section is for you.
@@ -534,7 +540,7 @@ predictClassesAndProbabilities <- function(model, test_data){
   return(dt)
 }
 ```
-As you can see, it uses Keras `predict_generator` function, which...
+As you can see, it uses Keras `predict_generator` function, which returns the values, based on which the samples' classes are determined. Using `ifelse` we can obtain these classes. 
 
 5. `getInfectedIndices` - it reads the file with predictions and returns a data frame with the index and the probability of a person being infected. It looks only among people who have been identified with class 1 (parasitized) during the examination. In addition, there is `treshold` parameter, which denotes the probability above which we want to have the sample's characteristics written in the data frame.
 
@@ -542,7 +548,7 @@ As you can see, it uses Keras `predict_generator` function, which...
 
 1. `saveModel` - saves the model into a hdf5 file using Keras `save_model_hdf5` function. After executing the function, you can find the trained model on the previously specified saving path, under the name "model + session_id".
 
-2. `getSessionId` - the function, which is based on a numeric version of `Sys.time()`, generates `session_id`. Note, that for each trained model, a different `session_id` is assigned to its name. Later, while making predictions, they are saved in a "work + session_id" folder, where session_id is the used model's session_id.
+2. `getSessionId` - the function, which is based on a numeric version of `Sys.time()`, generates `session_id`. Note that for each trained model, a different `session_id` is assigned to its name. Later, while making predictions, they are saved in a "work + session_id" folder, where "session_id" is the used model's "session_id".
 
 3. `loadModel` - loads the model which was previously saved into a hdf5 file. It uses Keras `load_model_hdf5` function under the hood.
 
