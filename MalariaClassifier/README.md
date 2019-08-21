@@ -254,7 +254,7 @@ We need to add another RScript file, where all of our modelling functions will b
 The content of the file you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/packages/MalariaModel/R/api_modelling.R).
 Remember to save the file in R folder in MalariaModel package. Take a look at the first lines of the code:
 
-![MalariaModel DESCRIPTION](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/api_modelling.png) 
+![MalariaModel file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/api_modelling.png) 
 
 The next step is to build the package. Again, go to Addins menu and choose "Build packages". When everything has been installed correctly, you should see this message:
 
@@ -308,7 +308,14 @@ After running "m_validate_model.R", your Work folder should consist of:
 
 ![screenshot of the Work folder](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/work_folder.png)
 
-Of course the number in the name of subfolder "work + number" you see will be different on your computer - this is because of the fact that its name is based on session_id. Inside this folder, you should find two files: "evaluation_statistics" and "predictions 1".
+Of course the number in the name of subfolder "work + number" you see will be different on your computer - this is because of the fact that its name is based on session_id. Inside this folder, you should find two files: "evaluation_statistics" and "predictions 1". 
+
+In addition to this, after executing "m_validate_model.R", in the Models folder, an RDS file called "calibration + session_id" should appear. The file is extremely important, because it's needed to successfully run "m_score_model.R".
+
+And when it comes to "m_score_model.R" - it's dedicated to your coworkers, so there is no need for you to run it now. But of course, feel free to play around with it. You need to set a few arguments in config file, though. Firstly, a file path to images for analysis. Remember, it should be the path to one folder, where the samples are stored (both infected and uninfected). Secondly, "prediction_id". You have one model, so one session_id. When you ran "m_validate_model.R", a file called "predictions 1" was created in a folder "work + session_id". So as to avoid overwriting it, simply set "prediction_id" to 2. After running "m_score_model.R", two new files should appear in your work folder: "predictions 2" and "infected 2". Take a look at the current content of the work folder:
+
+![work after score](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/work_after_score.png)
+
 
 ### Deployment: building deployment package ###
 
@@ -352,7 +359,7 @@ Rscript m_validate_model.R
 ```
 This should execute the code from the masterscript "m_validate_model.R". After everything has run properly, in your "Work" folder, in subfolder "work + session_id", you should find the following files:
 
-[insideWork](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/insideWork.png)
+![insideWork](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/insideWork.png)
 
 Now you can check out how "m_score_model.R" works. Set "prediction_id" number to 2 in your config file and type:
 ```
@@ -522,7 +529,7 @@ What is important here is that we *have to* use `fit_generator` instead of `fit`
 
 3. `evaluateModel` - it simply evaluates the model on the testing data generator. It classifies the data and then compares the results with the real labels. As a result, we get accuracy and loss of our model stored in a data frame.
 
-4. `predictClassesAndProbabilities` - the function returns classes and probabilities of belonging to the predicted class for the samples from the testing dataset. Take a quick look at the function:
+4. `predictClassesAndProbabilities` - the function returns a data frame with the index, predicted class and a probability based on which the class was determined. Take a quick look at the function:
 
 ```
 predictClassesAndProbabilities <- function(model, test_data){
@@ -542,7 +549,51 @@ predictClassesAndProbabilities <- function(model, test_data){
 ```
 As you can see, it uses Keras `predict_generator` function, which returns the values, based on which the samples' classes are determined. Using `ifelse` we can obtain these classes. 
 
-5. `getInfectedIndices` - it reads the file with predictions and returns a data frame with the index and the probability of a person being infected. It looks only among people who have been identified with class 1 (parasitized) during the examination. In addition, there is `treshold` parameter, which denotes the probability above which we want to have the sample's characteristics written in the data frame.
+5. `calibrateProbabilities` - it returns the accurate estimate of the probabilities that each test sample is the member of the class of interest. Take a look at the function:
+```
+calibrateProbabilities <- function(dataset, dt){
+  classes <- dataset$classes
+  levels(classes) <- c(0,1)
+  calibration <- CORElearn::calibrate(classes,
+                                      dt$Probability,
+                                      class1 = 1,
+                                      method = "isoReg",
+                                      assumeProbabilities = TRUE)
+  calibration$interval <- round(calibration$interval, 3)
+  calibration$calProb <- round(calibration$calProb, 3)
+  return(calibration)
+}
+```
+Its base is `calibrate` function from CORElearn package. It takes the vector of true classes as the first argument and the probability scores obtained after executing `predictClassesAndProbabilities` as the second argument. It uses isotonic regression to calibrate the probabilities and returns a list of the boundaries of the intervals as well as the calibrated probabilities for each corresponding interval. As we set `class1` argument to 1, the probability we obtain is the probability of each sample belonging to class 1 (parasitized). Note, that we need to specify classes' levels - otherwise `calibrate` won't understand the argument set in `class1`.
+
+6. `applyCalibration` - as the name suggests, it applies the previously calculated calibration to the data. Take a look at it:
+
+```
+applyCalibration <- function(f_path, session_id, dt){
+
+  data_frame <- dt
+
+  calibration <- readRDS(file.path(f_path, sprintf("calibration %s", as.character(session_id))))
+
+  calibrated_probabilities <- CORElearn::applyCalibration(dt$Probability, calibration)
+
+  for(i in 1:nrow(dt)){
+    if(data_frame$Class[i]==1){
+      data_frame$Probability[i] <- calibrated_probabilities[i]
+    }else{
+      data_frame$Probability[i] <- (1 - calibrated_probabilities[i])
+    }
+
+  }
+
+ return(data_frame)
+
+}
+```
+It loads the calibration file and applies the calibration to the data passed in a form of a data frame (the data frame created in `predictClassesAndProbabilities`). In addition it changes the probability - as `calibrateProbabilities` returns the probability of the sample belonging to class 1, we use a loop to modify it accordingly to the predicted class. As a result, we get the same data frame, but with a modified Probability column - now our probabilities are well calibrated and we can interpret them as an actual probability of the image belonging to the predicted class.
+
+7. `getInfectedIndices` - it reads the file with predictions and returns a data frame with the index and the probability of a person being infected. It looks only among people who have been identified with class 1 (parasitized) during the examination. In addition, there is `treshold` parameter, which denotes the probability above which we want to have the sample's characteristics written in the data frame.
+
 
 #### Functions used for saving and loading files ####
 
@@ -552,7 +603,9 @@ As you can see, it uses Keras `predict_generator` function, which returns the va
 
 3. `loadModel` - loads the model which was previously saved into a hdf5 file. It uses Keras `load_model_hdf5` function under the hood.
 
-4. `savePredictions`, `saveInfected` - they both save the previously created data frames into .csv files. At first they check whether a folder "work + session_id" exists and if not, they create it. After executing `savePredictions`, you will find a file called "predictions + pred_id" there, while after executing `saveInfected`, you will find a file called "infected + pred_id".
+4. `saveCalibration` - saves the calculated calibration into RDS file. After executing the function, you can find a file named "calibration + session_id" in the Models folder. This location is important, because the file needs to be delivered to your coworkers - they will use it while running "m_score.R".
+
+5. `savePredictions`, `saveInfected` - they both save the previously created data frames into .csv files. At first they check whether a folder "work + session_id" exists and if not, they create it. After executing `savePredictions`, you will find a file called "predictions + pred_id" there, while after executing `saveInfected`, you will find a file called "infected + pred_id".
 
 ### Understanding masterscript: m_train_model.R ###
 
@@ -578,9 +631,13 @@ This masterscript is a place to evaluate the previously created model. We can do
 
 3. `evaluateModel` and `saveModelEvaluation` to evaluate our model on the testing samples and save the evaluation into a .csv file.
 
-4. `predictClassesAndProbabilities` and `savePredictions` to check how the samples from the testing data have been classified and to save the results.
+4. `predictClassesAndProbabilities` to check how the samples from the testing data have been classified and to obtain probability scores needed for calibration.
 
-After running the whole masterscript, we should obtain two .csv files: "evaluation" and "prediction + pred_id" saved in our work folder called "work + session_id". 
+5. `calibrateProbabilities`, `saveCalibration` and `applyCalibration` to obtain the calibrated probabilities, apply it to data and save it for later use.
+
+6. `savePredictions` to save the results of the predictions.
+
+After running the whole masterscript, we should obtain two .csv files saved in our work folder called "work + session_id": "evaluation" and "prediction + pred_id". In addition to this, in Models folder, there should appear a file called "calibration + session_id".
 
 ### Understanding masterscript: m_score_model.R ###
 
@@ -590,7 +647,7 @@ This masterscript is designed as a place, where real data should be tested. We c
 
 2. `getUnlabelledImages` to generate testing data in a proper form. 
 
-3. `predictClassesAndProbabilities` and `savePredictions` to see how the samples have been classified and to save the results.
+3. `predictClassesAndProbabilities` and `applyCalibration` to check how each of the samples has been classified and to obtain its exact probability of belonging to the predicted class.
 
 4. `getInfectedIndices` and `saveInfected` to extract only these samples, which are likely to be infected and to save them in a separate .csv file.
 
