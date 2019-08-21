@@ -316,6 +316,7 @@ And when it comes to "m_score_model.R" - it's dedicated to your coworkers, so th
 
 ![work after score](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/work_after_score.png)
 
+When you've done all of the above tasks, you're ready to deploy your project.
 
 ### Deployment: building deployment package ###
 
@@ -361,11 +362,15 @@ This should execute the code from the masterscript "m_validate_model.R". After e
 
 ![insideWork](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/insideWork.png)
 
+Apart from this, the content of the Models folder should look as follows:
+
+![model after vlidation](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/model_after_score.png)
+
 Now you can check out how "m_score_model.R" works. Set "prediction_id" number to 2 in your config file and type:
 ```
 Rscript m_score_model.R
 ```
-in your console. A new file called "predictions 2" should appear in the subfolder "work + session_id".
+in your console. A new files called "predictions 2" and "infected 2" should appear in the subfolder "work + session_id".
 
 Take a quick look on how the content of MalariaClassifier folder presents itself now:
 
