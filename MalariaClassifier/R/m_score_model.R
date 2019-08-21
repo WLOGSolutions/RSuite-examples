@@ -48,13 +48,19 @@ model <- MalariaModel::loadModel(config$models_folder_path, config$session_id)
 samples <- DataPreparation::getUnlabelledImages(config$images_for_analysis)
 
 
-#Predict classes of the test samples and the probability of each sample belonging to the predicted class
+#Predict classes of the test samples and get the probability scores
 
 predictions <- MalariaModel::predictClassesAndProbabilities(model,
                                                             samples)
+
+#Calibrate probabilities
+
+calibrated_predictions <- MalariaModel::applyCalibration(config$models_folder_path,
+                                                         config$session_id,
+                                                         predictions)
 #Save predictions into a .csv file
 
-MalariaModel::savePredictions(dt = predictions,
+MalariaModel::savePredictions(dt = calibrated_predictions,
                               config$new_folder_path,
                               session_id = config$session_id,
                               pred_id = config$prediction_id)

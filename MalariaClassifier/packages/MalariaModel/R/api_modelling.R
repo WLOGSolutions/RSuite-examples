@@ -98,6 +98,7 @@ saveModelEvaluation <- function(dt, f_path, session){
   data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), "evaluation_statistics"))
 }
 
+
 #' Predict classes and probabilities of belonging to the predicted class for the testing samples using a trained model.
 #' @param model A fitted keras model object.
 #' @param test_data A data tensor in a shape of N x 150 x 150 x 3.
@@ -105,18 +106,83 @@ saveModelEvaluation <- function(dt, f_path, session){
 #' @export
 predictClassesAndProbabilities <- function(model, test_data){
 
-
   probabilities <- keras::predict_generator(model, test_data, steps = test_data$n, verbose = 1)
+
   classes <- ifelse(probabilities > 0.5, 1, 0)
   index <- test_data$filenames
 
   dt <- data.table::data.table(Id = index,
                                Class = classes,
                                Probability = probabilities)
+
   colnames(dt) <- c("Id", "Class", "Probability")
 
   return(dt)
 }
+
+#'Calibrate probability scores using isotonic regression.
+#'@param dataset A dataset containing true labels.
+#'@param dt A data frame containing probability scores.
+#'@return A list of two: calibration and intervals.
+#'
+#'@export
+calibrateProbabilities <- function(dataset, dt){
+  classes <- dataset$classes
+  levels(classes) <- c(0,1)
+  calibration <- CORElearn::calibrate(classes,
+                                      dt$Probability,
+                                      class1 = 1,
+                                      method = "isoReg",
+                                      assumeProbabilities = TRUE)
+  calibration$interval <- round(calibration$interval, 3)
+  calibration$calProb <- round(calibration$calProb, 3)
+  return(calibration)
+}
+#'Save calibration into RDS file.
+#'@param calibration A list of previously calculated calibration and intervals.
+#'@param f_path A path to the folder where RDS file is supposed to be saved.
+#'@param session_id Session_id.
+#'@return An RDS file.
+#'@export
+saveCalibration <- function(calibration, f_path, session_id){
+
+  save_path <- file.path(f_path, sprintf("calibration %s", as.character(session_id)))
+
+  if(!file.exists(save_path)){
+    saveRDS(calibration, save_path)
+  }else{
+    print("File already exists!")
+  }
+
+}
+
+#'Apply calculated calibration to the data.
+#'@param f_path A path to the folder where calibration file is stored.
+#'@param session_id Session_id.
+#'@param dt A data frame with calculated probability scores.
+#'@return A data frame with patient's id, predicted class and calculated probability of belonging to the class.
+#'@export
+applyCalibration <- function(f_path, session_id, dt){
+
+  data_frame <- dt
+
+  calibration <- readRDS(file.path(f_path, sprintf("calibration %s", as.character(session_id))))
+
+  calibrated_probabilities <- CORElearn::applyCalibration(dt$Probability, calibration)
+
+  for(i in 1:nrow(dt)){
+    if(data_frame$Class[i]==1){
+      data_frame$Probability[i] <- calibrated_probabilities[i]
+    }else{
+      data_frame$Probability[i] <- (1 - calibrated_probabilities[i])
+    }
+
+  }
+
+ return(data_frame)
+
+}
+
 
 #'Save predicted classes and probabilities into a .csv file.
 #'@param dt A data table/data frame object.

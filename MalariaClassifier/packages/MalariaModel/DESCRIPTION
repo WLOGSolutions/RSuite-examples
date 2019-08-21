@@ -11,6 +11,7 @@ Imports:
 	logging,
 	tensorflow,
 	keras,
-	data.table
+	data.table,
+	CORElearn
 SystemRequirements: conda (python=3.6.6 tensorflow=1.10.0 keras=2.2.2 pillow=5.2.0)
 RoxygenNote: 6.1.1
