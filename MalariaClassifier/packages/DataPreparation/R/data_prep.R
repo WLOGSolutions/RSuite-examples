@@ -69,30 +69,49 @@ splitAndSave <- function(data_path, new_path, id_train, id_valid, id_test) {
   para_names <- list.files(file.path(data_path, "Parasitized"), "*.png")
   uninf_names <- list.files(file.path(data_path, "Uninfected"), "*.png")
 
-  #Fill the created folders with images
+  num_train <- as.numeric(id_train)
+  num_valid <- as.numeric(id_valid) - as.numeric(id_train)
+  num_test <- as.numeric(id_test) - as.numeric(id_valid)
+
+  #Fill train folder with images
   fnames1 <- para_names[1:as.numeric(id_train)]
   file.copy(file.path(original_dataset_dir, "Parasitized", fnames1),
             file.path(train_infected_dir))
 
-  fnames2 <- para_names[(as.numeric(id_train)+1) : as.numeric(id_valid)]
-  file.copy(file.path(original_dataset_dir, "Parasitized", fnames2),
-            file.path(validation_infected_dir))
+  pkg_loginfo("Found %d Parasitized images in the train folder.", num_train)
 
-  fnames3 <- para_names[(as.numeric(id_valid)+1):as.numeric(id_test)]
-  file.copy(file.path(original_dataset_dir, "Parasitized", fnames3),
-            file.path(test_infected_dir))
-
-  fnames4 <- uninf_names[1:as.numeric(id_train)]
-  file.copy(file.path(original_dataset_dir, "Uninfected", fnames4),
+  fnames2 <- uninf_names[1:as.numeric(id_train)]
+  file.copy(file.path(original_dataset_dir, "Uninfected", fnames2),
             file.path(train_uninfected_dir))
 
-  fnames5 <- uninf_names[(as.numeric(id_train)+1):as.numeric(id_valid)]
-  file.copy(file.path(original_dataset_dir, "Uninfected", fnames5),
+  pkg_loginfo("Found %d Uninfected images in the train folder.", num_train)
+
+
+  #Fill validation folder with images
+  fnames3 <- para_names[(as.numeric(id_train)+1) : as.numeric(id_valid)]
+  file.copy(file.path(original_dataset_dir, "Parasitized", fnames3),
+            file.path(validation_infected_dir))
+
+  pkg_loginfo("Found %d Parasitized images in the validation folder.", num_valid)
+
+  fnames4 <- uninf_names[(as.numeric(id_train)+1):as.numeric(id_valid)]
+  file.copy(file.path(original_dataset_dir, "Uninfected", fnames4),
             file.path(validation_uninfected_dir))
+
+  pkg_loginfo("Found %d Uninfected images in the validation folder.", num_valid)
+
+  #Fill test folder with images
+  fnames5 <- para_names[(as.numeric(id_valid)+1):as.numeric(id_test)]
+  file.copy(file.path(original_dataset_dir, "Parasitized", fnames5),
+            file.path(test_infected_dir))
+
+  pkg_loginfo("Found %d Parasitized images in the test folder.", num_test)
 
   fnames6 <- uninf_names[(as.numeric(id_valid)+1):as.numeric(id_test)]
   file.copy(file.path(original_dataset_dir, "Uninfected", fnames6),
             file.path(test_uninfected_dir))
+
+  pkg_loginfo("Found %d Uninfected images in the test folder.", num_test)
 }
 
 #'Convert the images with labels into a proper form.

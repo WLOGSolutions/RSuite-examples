@@ -59,14 +59,23 @@ saveModel <- function(model, save_path, session) {
   model_fpath <- file.path(save_path, model_name)
   keras::save_model_hdf5(model, model_fpath)
 
+  pkg_loginfo("%s saved in Models folder.", model_name)
+
 }
 
 #' Load the model from a chosen directory.
-#' @param f_path A path to the model.
+#' @param models_f_path A path to the model.
+#' @param session Session_id.
 #' @return A keras model object.
 #' @export
 loadModel <- function(models_f_path, session){
+
+  model_name <- sprintf("model %s", as.character(session))
+
   keras::load_model_hdf5(file.path(models_f_path, sprintf("model %s", as.character(session))))
+
+  pkg_loginfo("%s loaded.", model_name)
+
 }
 
 #'Evaluate the trained model based on the test dataset and save the results in a work folder.
@@ -89,13 +98,16 @@ evaluateModel <- function(model, test_data){
 #'@export
 saveModelEvaluation <- function(dt, f_path, session){
 
-  work_path <- file.path(f_path, sprintf("work %s", as.character(session)))
+  work_f_name <- sprintf("work %s", as.character(session))
+  work_path <- file.path(f_path, work_f_name)
 
   if (!dir.exists(work_path)) {
     dir.create(work_path)
   }
 
   data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), "evaluation_statistics"))
+
+  pkg_loginfo("Evaluation statistics saved in %d folder.", work_f_name)
 }
 
 
@@ -138,6 +150,7 @@ calibrateProbabilities <- function(dataset, dt){
   calibration$calProb <- round(calibration$calProb, 3)
   return(calibration)
 }
+
 #'Save calibration into RDS file.
 #'@param calibration A list of previously calculated calibration and intervals.
 #'@param f_path A path to the folder where RDS file is supposed to be saved.
@@ -146,12 +159,19 @@ calibrateProbabilities <- function(dataset, dt){
 #'@export
 saveCalibration <- function(calibration, f_path, session_id){
 
-  save_path <- file.path(f_path, sprintf("calibration %s", as.character(session_id)))
+  f_name <- sprintf("calibration %s", as.character(session_id))
+  save_path <- file.path(f_path, f_name)
 
   if(!file.exists(save_path)){
+
     saveRDS(calibration, save_path)
+
+    pkg_loginfo("%s saved in Models folder.", f_name)
+
   }else{
+
     print("File already exists!")
+
   }
 
 }
@@ -165,8 +185,8 @@ saveCalibration <- function(calibration, f_path, session_id){
 applyCalibration <- function(f_path, session_id, dt){
 
   data_frame <- dt
-
-  calibration <- readRDS(file.path(f_path, sprintf("calibration %s", as.character(session_id))))
+  calibration_name <- sprintf("calibration %s", as.character(session_id))
+  calibration <- readRDS(file.path(f_path, calibration_name))
 
   calibrated_probabilities <- CORElearn::applyCalibration(dt$Probability, calibration)
 
@@ -179,6 +199,7 @@ applyCalibration <- function(f_path, session_id, dt){
 
   }
 
+ pkg_loginfo("Probabilities calibrated using %s file.", calibration_name)
  return(data_frame)
 
 }
@@ -199,6 +220,8 @@ savePredictions <- function(dt, f_path, session_id, pred_id) {
   data.table::fwrite(dt, file.path(f_path,
                                    sprintf("work %s", session_id),
                                    sprintf("predictions %s", as.character(pred_id))))
+
+
 }
 
 #'Checks which samples are infected with probability higher than 50%.
@@ -227,12 +250,16 @@ getInfectedIndices <- function(f_path, session_id, pred_id, threshold){
 #'@export
 saveInfected <- function(dt, f_path, session_id, pred_id){
 
-  work_path <- file.path(f_path, sprintf("work %s", session_id))
+  file_name <- sprintf("infected %s", pred_id)
+  folder_name <- sprintf("work %s", session_id)
+
+  work_path <- file.path(f_path, folder_name)
 
   if (!dir.exists(work_path)) {
     dir.create(work_path)
   }
 
-  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", session_id),
-                                   sprintf("infected %s", pred_id)))
+  data.table::fwrite(dt, file.path(f_path, folder_name, file_name))
+
+  pkg_loginfo("File %s saved in %s folder.", file_name, folder_name)
 }
