@@ -85,3 +85,4 @@ MalariaModel::savePredictions(dt = calibrated_predictions,
                               session_id = config$session_id,
                               pred_id = config$prediction_id)
 
+
