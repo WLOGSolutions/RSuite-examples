@@ -94,20 +94,21 @@ evaluateModel <- function(model, test_data){
 #'Save model evaluation: acc and loss.
 #'@param dt A data table/data frame object.
 #'@param f_path A path to the folder where the evaluation statistics are supposed to be saved.
+#'@param session_id session id to take trained odel from
 #'@return A .csv file called "evaluation_statistics".
 #'@export
-saveModelEvaluation <- function(dt, f_path, session){
+saveModelEvaluation <- function(dt, f_path, session_id) {
 
-  work_f_name <- sprintf("work %s", as.character(session))
-  work_path <- file.path(f_path, work_f_name)
+  work_path <- file.path(f_path, sprintf("work %s", as.character(session_id)))
+
 
   if (!dir.exists(work_path)) {
     dir.create(work_path)
   }
 
-  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session)), "evaluation_statistics"))
 
-  pkg_loginfo("Evaluation statistics saved in %d folder.", work_f_name)
+  data.table::fwrite(dt, file.path(f_path, sprintf("work %s", as.character(session_id)), "evaluation_statistics"))
+
 }
 
 

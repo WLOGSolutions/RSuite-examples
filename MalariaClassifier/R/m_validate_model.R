@@ -80,7 +80,7 @@ calibrated_predictions <- applyCalibration(config$models_folder_path,
 
 #Save predictions into a .csv file
 
-MalariaModel::savePredictions(dt = calbrated_predictions,
+MalariaModel::savePredictions(dt = calibrated_predictions,
                               config$new_folder_path,
                               session_id = config$session_id,
                               pred_id = config$prediction_id)
