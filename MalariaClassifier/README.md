@@ -119,7 +119,7 @@ There are three extremely important folders there:
 
 ### Creating packages in project: DataPreparation ###
 
-We've created a project, it's time build in its first functionality. We are going to create a package called "DataPreparation". It will serve as a place in a project, where we will write functions needed to prepare the data for modelling. 
+We've created a project, it's time to build in its first functionality. We are going to create a package called "DataPreparation". It will serve as a place in a project, where we will write functions needed to prepare the data for modelling. 
 How to create a package? Similarily to starting a project. Just below "Start project" in the Addins menu, you can see an instruction "Start package in project". Just click it and the rest is pretty intuitive. You need to name the package, the project folder will be set automatically to the project you're currently working on: 
 
 ![DataPreparation package](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/DataPreppkg.png) 
@@ -167,7 +167,7 @@ When all dependencies are successfully installed, restart R session so as to sav
 
 ### Adding a new folder in project: Work ###
 
-Because you want to build a model, then score it and, in addition to this, the whole code will be executed on server, you need to save the results somewhere. The best option is to add new folders inside a project. We will start with a folder named "Work". This folder won't be seen by your coworkers, it will serve as a place where you store the evaluation results just for your information. 
+Because you want to build a model, evaluate it, then use it for scoring and, in addition to this, the whole code will be executed on server, you need to save the results somewhere. The best option is to add new folders inside a project. We will start with a folder named "Work". This folder won't be seen by your coworkers, it will serve as a place where you store the evaluation results just for your information. 
 
 To create a folder, click a "New folder" icon in your project menu on the right side of the screen in RStudio:
 
@@ -187,7 +187,7 @@ Now we need to create another folder - "Models". As the name suggests, this will
 
 The first part is the same as in a previous section. Click "New folder", name it "Models" and copy .gitignore file there. 
 
-There is one more step, though. This is a folder, which will contain the trained models, used later by your coworkers to predict patients' health status. Because of this, we want to make sure, that they will get it. This is why we need to go to PARAMETERS file in the main project folder. Open it and add "Models" to Artifacts just like you can see below:
+There is one more step, though. This is a folder, which will contain the trained models and their improvements, used later by your coworkers to predict patients' health status. Because of this, we want to make sure, that they will get it. This is why we need to go to PARAMETERS file in the main project folder. Open it and add "Models" to Artifacts just like you can see below:
 
 ![Models in Artifacts](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/modelsArt.png)
 
@@ -236,9 +236,7 @@ Since we have the framework of our Malaria Classifier project, we can move on to
 
 ### Developing packages in project: DataPreparation ###
 
-We need to create a new RScript file (RStudio menu -> File -> New file -> R Script), where we will write all of the functions needed for preparing the images for modelling. We are going to name the file "data_prep.R". The content of the file you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/packages/DataPreparation/R/data_prep.R). Make sure you save it in DataPreparation's folder R. Take a look on how the beginning of the file is supposed to look like:
-
-![data_prep file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/data_prep.png) 
+We need to create a new RScript file (RStudio menu -> File -> New file -> R Script), where we will write all of the functions needed for preparing the images for modelling. We are going to name the file "data_prep.R". The content of the file you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/packages/DataPreparation/R/data_prep.R). Make sure you save it in DataPreparation's folder R. 
 
 When you have all (at least for now) of the needed dependencies installed, and you created "data_prep.R" file, in order to use DataPreparation package in the masterscripts, you have to build it first. You can do it by going to Addins menu and clicking "Build Packages". A new window will pop up:
 
@@ -252,9 +250,7 @@ Click "Build" and if everything has worked correctly, you should see a following
 
 We need to add another RScript file, where all of our modelling functions will be stored. We will call it "api_modelling.R".
 The content of the file you can copy from [here](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/packages/MalariaModel/R/api_modelling.R).
-Remember to save the file in R folder in MalariaModel package. Take a look at the first lines of the code:
-
-![MalariaModel file](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/api_modelling.png) 
+Remember to save the file in R folder in MalariaModel package. 
 
 The next step is to build the package. Again, go to Addins menu and choose "Build packages". When everything has been installed correctly, you should see this message:
 
@@ -334,7 +330,7 @@ When you have a ZIP file, in order to use it, do the following:
 
 1. Create a new folder, name it "Production". Copy your ZIP file there and unzip it. Inside a ZIP file, you can find the following folders:
 
-<screenshot>
+![first zip](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/first_zip.png)
 
 What's inside them? In R folder, you will find the masterscripts. In libs, the packages are stored. Conda is a folder where Python or any Python-related tools are gathered and logs stores any logging information. And of course "Models" - where the models you created are present. So what are you supposed to do to deploy your project? 
 
@@ -345,7 +341,7 @@ What's inside them? In R folder, you will find the masterscripts. In libs, the p
 3. Fill config_templ.txt file as it states in the instructions. Declare path to folders, files and number of samples. In particular:
 
 - **new_folder_path** - bear in mind that it should be the path to the folder "Work" you've just created. This way you will have all your results in one place. 
-- **id_test, id_valid, id_train** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_validate_model.R" or "m_score_model.R"). They denote the indices of training, validation and testing samples (both parasitized and uninfected): [1, id_train] is the interval of the indices of training samples, [id_train+1, id_valid] of validation samples and [it_valid+1, id_test] of testing samples.
+- **id_test, id_valid, id_train** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_validate_model.R" or "m_score_model.R"). They denote the indices of training, validation and testing samples (both parasitized and uninfected): [1, id_train] is the interval of the indices of training samples, [id_train+1, id_valid] of validation samples and [id_valid+1, id_test] of testing samples.
 - **session_id** - this is extremely important for people using "m_validate_model.R" and "m_score_model.R". This id will indicate which of the models to use. Each of the models from "Models" folder will be named "model + number". And this number of a wanted model is what you're supposed to type in session_id.
 - **images_for_analysis** - only for your coworkers. The path to a folder where they store folder with the samples to be tested using the models you built.
 - **prediction_id** - also, very importand for your coworkers. When they want to use the same model to test different samples, they need to distinguish the files with the results somehow. And this is why they need to fill "prediction_id". It will appear in the name of the file with predictions (the file will be called "predictions + prediction_id").
@@ -386,7 +382,7 @@ So, let's sum up what we've just done:
 
 - We created a project involving malaria classifier which uses Python but the whole code is written in R.
 - Thanks to RSuite, the project is divided into three parts: one responsible for preparing the model, second for evaluating it and the third one is ready to be used by your coworkers to test real samples.
-- We enabled the easy deployment of the project - even people who has never been programming are able to use the third part of the project in order to check whether a patient is sick or not.
+- We enabled the easy deployment of the project - even people who has never been programming are able to use the third part of the project in order to check whether a patient is sick or not. The only thing they need to do to achieve it, is to fill in a text file.
 
 This means we successfully completed the task described in the introduction. If you're interested in creating and developing similar projects, please check out these articles:
 
@@ -439,14 +435,14 @@ getLabelledImages <- function(new_data_path, folder_name) {
 ```
 As you can see, `getLabelledImages` is based on two Keras's functions: 
 
-- image_data_generator -  which generates the data and rescales pixel values from the range 1-255 into the range 0-1. We are supposed to normalize the values, because neural networks work better with smaller numbers.
-- flow_images_from_directory - which uses the previously defined generator and applies it to the data. In addition, it changes image resolutions to 150x150 and labels the data. 
+- `image_data_generator` -  which generates the data and rescales pixel values from the range 1-255 into the range 0-1. We are supposed to normalize the values, because neural networks work better with smaller numbers.
+- `flow_images_from_directory` - which uses the previously defined generator and applies it to the data. In addition, it changes image resolutions to 150x150 and labels the data. 
 
-So what is the result of executing the function? It generates batches of RGB images in a size of 150x150 with binary labels. Every batch consists of 5 samples, as we specified in `flow_images_from_directory` using `batch_size` argument. 
+So what is the result of executing the function? It generates batches of RGB images in a size of 150x150 with binary labels. Every batch consists of 5 samples, as we specified in `flow_images_from_directory` using `batch_size` argument. And thanks to using `classes` argument, we declared the way of labelling the images (0 - Uninfected, 1 - Parasitized).
 
 Of course, preparing the data for modelling is slightly different than preparing it for being used by the trained model. That's why we have one more function in DataPreparation package:
 
-- getUnlabelledImages - its goal is to prepare the real data to be used by the model. It's very similar to `getLabelledImages`, but let's look at it:
+- `getUnlabelledImages` - its goal is to prepare the real data to be used by the model. It's very similar to `getLabelledImages`, but let's look at it:
 
 ```
 getUnlabelled <- function(image_path){
@@ -552,7 +548,7 @@ predictClassesAndProbabilities <- function(model, test_data){
   return(dt)
 }
 ```
-As you can see, it uses Keras `predict_generator` function, which returns the values, based on which the samples' classes are determined. Using `ifelse` we can obtain these classes. 
+As you can see, it uses Keras `predict_generator` function, which returns the values, based on which the samples are assigned to classes. Using `ifelse` we can obtain these classes. 
 
 5. `calibrateProbabilities` - it returns the accurate estimate of the probabilities that each test sample is the member of the class of interest. Take a look at the function:
 ```
@@ -569,16 +565,15 @@ calibrateProbabilities <- function(dataset, dt){
   return(calibration)
 }
 ```
-Its base is `calibrate` function from CORElearn package. It takes the vector of true classes as the first argument and the probability scores obtained after executing `predictClassesAndProbabilities` as the second argument. It uses isotonic regression to calibrate the probabilities and returns a list of the boundaries of the intervals as well as the calibrated probabilities for each corresponding interval. As we set `class1` argument to 1, the probability we obtain is the probability of each sample belonging to class 1 (parasitized). Note, that we need to specify classes' levels - otherwise `calibrate` won't understand the argument set in `class1`.
+Its basis is `calibrate` function from CORElearn package. It takes the vector of true classes as the first argument and the probability scores obtained after executing `predictClassesAndProbabilities` as the second argument. It uses isotonic regression to calibrate the probabilities and returns a list of the boundaries of the intervals as well as the calibrated probabilities for each corresponding interval. As we set `class1` argument to 1, the probability we obtain is the probability of each sample belonging to class 1 (parasitized). Note, that we need to specify classes' levels - otherwise `calibrate` won't understand the argument set in `class1`.
 
 6. `applyCalibration` - as the name suggests, it applies the previously calculated calibration to the data. Take a look at it:
-
 ```
 applyCalibration <- function(f_path, session_id, dt){
 
   data_frame <- dt
-
-  calibration <- readRDS(file.path(f_path, sprintf("calibration %s", as.character(session_id))))
+  calibration_name <- sprintf("calibration %s", as.character(session_id))
+  calibration <- readRDS(file.path(f_path, calibration_name))
 
   calibrated_probabilities <- CORElearn::applyCalibration(dt$Probability, calibration)
 
@@ -591,11 +586,12 @@ applyCalibration <- function(f_path, session_id, dt){
 
   }
 
+ pkg_loginfo("Probabilities calibrated using '%s' file.", calibration_name)
  return(data_frame)
 
 }
 ```
-It loads the calibration file and applies the calibration to the data passed in a form of a data frame (the data frame created in `predictClassesAndProbabilities`). In addition it changes the probability - as `calibrateProbabilities` returns the probability of the sample belonging to class 1, we use a loop to modify it accordingly to the predicted class. As a result, we get the same data frame, but with a modified Probability column - now our probabilities are well calibrated and we can interpret them as an actual probability of the image belonging to the predicted class.
+It loads the calibration file (thanks to session_id, calibration always corresponds to the model you're currently using) and applies the calibration to the data passed in a form of a data frame (the data frame created in `predictClassesAndProbabilities`). In addition it changes the probability - as `calibrateProbabilities` returns the probability of the sample belonging to class 1, we use a loop to modify it accordingly to the predicted class. As a result, we get the same data frame, but with a modified Probability column - now our probabilities are well calibrated and we can interpret them as an actual probability of the image belonging to the predicted class.
 
 7. `getInfectedIndices` - it reads the file with predictions and returns a data frame with the index and the probability of a person being infected. It looks only among people who have been identified with class 1 (parasitized) during the examination. In addition, there is `treshold` parameter, which denotes the probability above which we want to have the sample's characteristics written in the data frame.
 
@@ -604,7 +600,7 @@ It loads the calibration file and applies the calibration to the data passed in 
 
 1. `saveModel` - saves the model into a hdf5 file using Keras `save_model_hdf5` function. After executing the function, you can find the trained model on the previously specified saving path, under the name "model + session_id".
 
-2. `getSessionId` - the function, which is based on a numeric version of `Sys.time()`, generates `session_id`. Note that for each trained model, a different `session_id` is assigned to its name. Later, while making predictions, they are saved in a "work + session_id" folder, where "session_id" is the used model's "session_id".
+2. `getSessionId` - generates `session_id` based on a numeric version of `Sys.time()`. Note that for each trained model, a different `session_id` is assigned to its name. Later, while making predictions, they are saved in a "work + session_id" folder, where "session_id" is the used model's "session_id".
 
 3. `loadModel` - loads the model which was previously saved into a hdf5 file. It uses Keras `load_model_hdf5` function under the hood.
 
