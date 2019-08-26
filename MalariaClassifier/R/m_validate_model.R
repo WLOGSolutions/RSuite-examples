@@ -43,7 +43,13 @@ model <- MalariaModel::loadModel(config$models_folder_path, config$session_id)
                                         #Get testing samples
                                         #Convert the samples into a proper form
 
-test_data <- DataPreparation::getLabelledImages(config$new_folder_path, "test")
+test_data <- DataPreparation::getLabelledImages(config$new_folder_path,
+                                                "test",
+                                                batch_size = 1)
+
+#Reset test generator
+
+resetGenerator(test_data)
 
 #Evaluate the trained model
 
@@ -55,6 +61,8 @@ evaluation <- MalariaModel::evaluateModel(model,
 MalariaModel::saveModelEvaluation(dt = evaluation,
                                   config$new_folder_path,
                                   session_id = config$session_id)
+
+
 
 #Predict classes of the test samples and the probability scores
 

@@ -33,10 +33,10 @@ createModel <- function() {
 trainModel <- function(model) {
 
              model %>% fit_generator(train_data,
-                                     steps_per_epoch = 2,
-                                     epochs = 2,
+                                     steps_per_epoch = 100,
+                                     epochs = 30,
                                      validation_data = valid_data,
-                                     validation_steps = 5)
+                                     validation_steps = 200)
   return(model)
 }
 
@@ -88,7 +88,7 @@ loadModel <- function(models_f_path, session){
 #'
 #'@export
 evaluateModel <- function(model, test_data){
-  eva <- keras::evaluate_generator(model, test_data, steps = 5)
+  eva <- keras::evaluate_generator(model, test_data, steps = ceiling(test_data$n/test_data$batch_size))
   dt <- data.table::data.table(loss = eva$loss, acc = eva$acc)
   return(dt)
 }
@@ -116,6 +116,11 @@ saveModelEvaluation <- function(dt, f_path, session_id) {
 
 }
 
+#'@export
+#'
+resetGenerator <- function(test_data){
+  test_data$reset
+}
 
 #' Predict classes and probabilities of belonging to the predicted class for the testing samples using a trained model.
 #' @param model A fitted keras model object.

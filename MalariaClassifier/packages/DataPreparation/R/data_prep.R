@@ -119,7 +119,7 @@ splitAndSave <- function(data_path, new_path, id_train, id_valid, id_test) {
 #'@param folder_name The name of the folder with the samples.
 #'@return Keras image generator.
 #'@export
-getLabelledImages <- function(new_data_path, folder_name) {
+getLabelledImages <- function(new_data_path, folder_name, batch_size) {
 
   generator <- keras::image_data_generator(rescale = 1/255)
 
@@ -127,7 +127,7 @@ getLabelledImages <- function(new_data_path, folder_name) {
                                                        generator,
                                                        target_size = c(150, 150),
                                                        classes = c("Uninfected", "Parasitized"),
-                                                       batch_size = 5,
+                                                       batch_size = batch_size,
                                                        class_mode = "binary")
   return(data_generator)
 }
