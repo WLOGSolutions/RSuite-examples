@@ -14,7 +14,7 @@ createModel <- function() {
     keras::layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
     keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
     keras::layer_flatten() %>%
-    keras::layer_dropout(rate=0.2) %>%
+    keras::layer_dropout(rate=0.5) %>%
     keras::layer_dense(units=512, activation = "relu") %>%
     keras::layer_dense(units = 1, activation = "sigmoid")
 
@@ -34,7 +34,7 @@ trainModel <- function(model) {
 
              model %>% fit_generator(train_data,
                                      steps_per_epoch = ceiling(train_data$n/train_data$batch_size),
-                                     epochs = 30,
+                                     epochs = 15,
                                      validation_data = valid_data,
                                      validation_steps = ceiling(valid_data$n/valid_data$batch_size))
   return(model)
