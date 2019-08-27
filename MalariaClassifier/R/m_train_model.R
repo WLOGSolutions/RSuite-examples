@@ -52,11 +52,11 @@ DataPreparation::splitAndSave(
 
 train_data <- DataPreparation::getAugmentedImages(config$new_folder_path,
                                                  "train",
-                                                 batch_size = 50)
+                                                 batch_size = 20)
 
 valid_data <- DataPreparation::getLabelledImages(config$new_folder_path,
                                                  "validation",
-                                                 batch_size = 50)
+                                                 batch_size = 20)
 
 #2) MODEL TRAINING
 
