@@ -50,7 +50,7 @@ DataPreparation::splitAndSave(
 
 #Get training and validation samples
 
-train_data <- DataPreparation::getLabelledImages(config$new_folder_path,
+train_data <- DataPreparation::getAugmentedImages(config$new_folder_path,
                                                  "train",
                                                  batch_size = 20)
 

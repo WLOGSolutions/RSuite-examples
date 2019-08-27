@@ -114,6 +114,29 @@ splitAndSave <- function(data_path, new_path, id_train, id_valid, id_test) {
   pkg_loginfo("Found %d Uninfected images in the test folder.", num_test)
 }
 
+#'@export
+#'
+getAugmentedImages <- function(new_data_path, folder_name, batch_size){
+
+  aug_generator <- keras:: image_data_generator(rescale = 1/255,
+                                                rotation_range=20,
+                                                zoom_range=0.05,
+                                                width_shift_range=0.05,
+                                                height_shift_range=0.05,
+                                                shear_range=0.05,
+                                                horizontal_flip=TRUE,
+                                                fill_mode="nearest")
+
+  data_generator <- keras:: flow_images_from_directory(file.path(new_data_path, folder_name),
+                                                       aug_generator,
+                                                       target_size = c(150, 150),
+                                                       classes = c("Uninfected", "Parasitized"),
+                                                       batch_size = batch_size,
+                                                       class_mode = "binary")
+  return(data_generator)
+
+}
+
 #'Convert the images with labels into a proper form.
 #'@param new_data_path A path to the folder with the samples.
 #'@param folder_name The name of the folder with the samples.
