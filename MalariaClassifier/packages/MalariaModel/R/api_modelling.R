@@ -6,15 +6,12 @@
 createModel <- function() {
   model_architecture <- keras::keras_model_sequential() %>%
     keras::layer_conv_2d(filters=32, kernel_size = c(3,3), activation = "relu", input_shape = c(150, 150, 3)) %>%
-    keras::k_batch_normalization() %>%
     keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
     keras::layer_dropout(rate=0.2) %>%
     keras::layer_conv_2d(filters=64, kernel_size = c(3,3), activation = "relu") %>%
-    keras::k_batch_normalization() %>%
     keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
     keras::layer_dropout(rate = 0.2) %>%
     keras::layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
-    keras::k_batch_normalization() %>%
     keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
     keras::layer_dropout(rate=0.2) %>%
     keras::layer_flatten() %>%
@@ -23,7 +20,7 @@ createModel <- function() {
     keras::layer_dense(units = 1, activation = "sigmoid")
 
   model_architecture %>% keras::compile(loss="binary_crossentropy",
-                                        optimizer = keras::optimizer_rmsprop(lr=1e-5),
+                                        optimizer = keras::optimizer_adam(),
                                         metrics = c("acc"))
   return(model_architecture)
 
