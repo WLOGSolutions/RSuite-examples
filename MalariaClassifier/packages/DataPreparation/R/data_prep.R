@@ -129,7 +129,7 @@ getAugmentedImages <- function(new_data_path, folder_name, batch_size){
 
   data_generator <- keras:: flow_images_from_directory(file.path(new_data_path, folder_name),
                                                        aug_generator,
-                                                       target_size = c(150, 150),
+                                                       target_size = c(50, 50),
                                                        classes = c("Uninfected", "Parasitized"),
                                                        batch_size = batch_size,
                                                        class_mode = "binary")
@@ -148,7 +148,7 @@ getLabelledImages <- function(new_data_path, folder_name, batch_size) {
 
   data_generator <- keras:: flow_images_from_directory(file.path(new_data_path, folder_name),
                                                        generator,
-                                                       target_size = c(150, 150),
+                                                       target_size = c(50, 50),
                                                        classes = c("Uninfected", "Parasitized"),
                                                        batch_size = batch_size,
                                                        class_mode = "binary")
@@ -165,7 +165,7 @@ getUnlabelledImages <- function(image_path){
 
   data_generator <- keras::flow_images_from_directory(image_path,
                                                       generator,
-                                                      target_size = c(150, 150),
+                                                      target_size = c(50, 50),
                                                       batch_size = 1,
                                                       class_mode = NULL,
                                                       shuffle = FALSE)

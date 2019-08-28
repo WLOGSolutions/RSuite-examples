@@ -50,13 +50,13 @@ DataPreparation::splitAndSave(
 
 #Get training and validation samples
 
-train_data <- DataPreparation::getAugmentedImages(config$new_folder_path,
+train_data <- DataPreparation::getLabelledImages(config$new_folder_path,
                                                  "train",
-                                                 batch_size = 20)
+                                                 batch_size = 50)
 
 valid_data <- DataPreparation::getLabelledImages(config$new_folder_path,
                                                  "validation",
-                                                 batch_size = 20)
+                                                 batch_size = 50)
 
 #2) MODEL TRAINING
 
