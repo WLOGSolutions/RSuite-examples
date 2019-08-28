@@ -5,19 +5,24 @@
 
 createModel <- function() {
   model_architecture <- keras::keras_model_sequential() %>%
+
     keras::layer_conv_2d(filters=32, kernel_size = c(3,3), activation = "relu", input_shape = c(150, 150, 3)) %>%
+    keras::layer_conv_2d(filters=32, kernel_size = c(3,3), activation = "relu") %>%
     keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
     keras::layer_conv_2d(filters=64, kernel_size = c(3,3), activation = "relu") %>%
+    keras::layer_conv_2d(filters=64, kernel_size = c(3,3), activation = "relu") %>%
     keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    keras::layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
-    keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
+
     keras::layer_flatten() %>%
+
+    keras::layer_dense(units=512, activation = "relu") %>%
     keras::layer_dropout(rate=0.2) %>%
     keras::layer_dense(units=512, activation = "relu") %>%
+    keras::layer_dropout(rate=0.2) %>%
     keras::layer_dense(units = 1, activation = "sigmoid")
 
   model_architecture %>% keras::compile(loss="binary_crossentropy",
-                                        optimizer = keras::optimizer_rmsprop(lr = 1e-5),
+                                        optimizer = keras::optimizer_adam(),
                                         metrics = c("acc"))
   return(model_architecture)
 
@@ -32,7 +37,7 @@ trainModel <- function(model) {
 
              model %>% fit_generator(train_data,
                                      steps_per_epoch = 100,
-                                     epochs = 30,
+                                     epochs = 10,
                                      validation_data = valid_data,
                                      validation_steps = 200)
   return(model)
