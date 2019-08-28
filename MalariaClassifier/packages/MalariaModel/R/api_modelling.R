@@ -34,11 +34,10 @@ createModel <- function() {
 trainModel <- function(model) {
 
              model %>% fit_generator(train_data,
-                                     steps_per_epoch = 100,
+                                     steps_per_epoch = train_data$n/train_data$batch_size,
                                      epochs = 20,
-                                     view_metrics = TRUE,
                                      validation_data = valid_data,
-                                     validation_steps = 200)
+                                     validation_steps = valid_data$n/valid_data$batch_size)
   return(model)
 }
 
