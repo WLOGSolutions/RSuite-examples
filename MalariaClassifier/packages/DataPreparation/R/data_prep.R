@@ -114,8 +114,8 @@ splitAndSave <- function(data_path, new_path, id_train, id_valid, id_test) {
   pkg_loginfo("Found %d Uninfected images in the test folder.", num_test)
 }
 
-#'@export
-#'
+#' 
+#' @export
 getAugmentedImages <- function(new_data_path, folder_name, batch_size){
 
   aug_generator <- keras:: image_data_generator(rescale = 1/255,
