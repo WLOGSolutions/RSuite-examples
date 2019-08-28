@@ -37,7 +37,8 @@ Author: Urszula Białończyk
     - [Understanding masterscript: m_train_model.R](#understanding-masterscript-m_train_modelr)
     - [Understanding masterscript: m_validate_model.R](#understanding-masterscript-m_validate_modelr)
     - [Understanding masterscript: m_score_model.R](#understanding-masterscript-m_score_modelr)
-
+- [Results](#results)    
+    
 <!-- markdown-toc end -->
 
 
@@ -417,18 +418,18 @@ For this, we have a function called `splitAndSave`. It creates a new folder cont
 
 2. Loading, converting and labeling the data. 
 
-What you need to do next, is to load the images in a form of a data tensors and to label them accordingly to their classes. This may seem as at least three steps, but thanks to Keras, it's really easy. The function which helps you do it, is `getLabelledImages`. Take a look at it:
+What you need to do next, is to load the images in a form of a data tensors, convert them and label them accordingly to their classes. This may seem as at least three steps, but thanks to Keras, it's really easy. The functions which help you do it, are `getLabelledImages`, `getTrainingImages` and `getUnlabelledImages`. Take a look at the first one:
 
 ```
-getLabelledImages <- function(new_data_path, folder_name) {
+getLabelledImages <- function(new_data_path, folder_name, batch_size) {
 
-  generator <- keras::image_data_generator(rescale=1/255)
+  generator <- keras::image_data_generator(rescale = 1/255)
 
   data_generator <- keras:: flow_images_from_directory(file.path(new_data_path, folder_name),
                                                        generator,
-                                                       target_size = c(150, 150),
+                                                       target_size = c(50, 50),
                                                        classes = c("Uninfected", "Parasitized"),
-                                                       batch_size = 5,
+                                                       batch_size = batch_size,
                                                        class_mode = "binary")
   return(data_generator)
 }
@@ -436,9 +437,35 @@ getLabelledImages <- function(new_data_path, folder_name) {
 As you can see, `getLabelledImages` is based on two Keras's functions: 
 
 - `image_data_generator` -  which generates the data and rescales pixel values from the range 1-255 into the range 0-1. We are supposed to normalize the values, because neural networks work better with smaller numbers.
-- `flow_images_from_directory` - which uses the previously defined generator and applies it to the data. In addition, it changes image resolutions to 150x150 and labels the data. 
+- `flow_images_from_directory` - which uses the previously defined generator and applies it to the data. In addition, it changes image resolutions to 50x50 and labels the data. 
 
-So what is the result of executing the function? It generates batches of RGB images in a size of 150x150 with binary labels. Every batch consists of 5 samples, as we specified in `flow_images_from_directory` using `batch_size` argument. And thanks to using `classes` argument, we declared the way of labelling the images (0 - Uninfected, 1 - Parasitized).
+So what is the result of executing the function? It generates batches of RGB images in a size of 50x50 with binary labels. Every batch consists of the number of samples which we specify in `flow_images_from_directory` using `batch_size` argument (we will set it to 50). And thanks to using `classes` argument, we can declare the way of labelling the images (0 - Uninfected, 1 - Parasitized).
+
+The second function, `getTrainingImages` is an advanced version of `getLabelledImages`. Take a look at it:
+
+```
+getTrainingImages <- function(new_data_path, folder_name, batch_size){
+
+  aug_generator <- keras:: image_data_generator(rescale = 1/255,
+                                                rotation_range=20,
+                                                zoom_range=0.05,
+                                                width_shift_range=0.05,
+                                                height_shift_range=0.05,
+                                                shear_range=0.05,
+                                                horizontal_flip=TRUE,
+                                                fill_mode="nearest")
+
+  data_generator <- keras:: flow_images_from_directory(file.path(new_data_path, folder_name),
+                                                       aug_generator,
+                                                       target_size = c(50, 50),
+                                                       classes = c("Uninfected", "Parasitized"),
+                                                       batch_size = batch_size,
+                                                       class_mode = "binary")
+  return(data_generator)
+
+}
+```
+In order to improve the ability of learning by our model, we need to augment the training samples. Thanks to it, the model will learn better and it will help us avoid overfitting. So what this function does, is that it generates batches of data, where each image is randomly rotated (`rotation_range`), randomly zoomed (`zoom_range`), randomly transformed (`width_shift`, `height_shift`), randomly cropped (`shear_range`), randomly mirrored (`horizontal_flip`) and when new pixels occur due to the rotation or shifting, they are filled with the nearest ones (`fill_mode`).
 
 Of course, preparing the data for modelling is slightly different than preparing it for being used by the trained model. That's why we have one more function in DataPreparation package:
 
@@ -474,21 +501,22 @@ Remember how I pointed out at the beginning of this chapter, that our images are
 ```
 createModel <- function() {
   model_architecture <- keras::keras_model_sequential() %>%
-    keras::layer_conv_2d(filters=32, kernel_size = c(3,3), activation = "relu", input_shape = c(150, 150, 3)) %>%
+
+    keras::layer_conv_2d(filters=16, kernel_size = c(2,2), activation = "relu", input_shape = c(50, 50, 3)) %>%
     keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    keras::layer_conv_2d(filters=64, kernel_size = c(3,3), activation = "relu") %>%
+    keras::layer_conv_2d(filters=32, kernel_size = c(2,2), activation = "relu") %>%
     keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    keras::layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
+    keras::layer_conv_2d(filters=64, kernel_size = c(2,2), activation = "relu") %>%
     keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
-    keras::layer_conv_2d(filters=128, kernel_size = c(3,3), activation = "relu") %>%
-    keras::layer_max_pooling_2d(pool_size = c(2,2)) %>%
+
+    keras::layer_dropout(rate=0.2) %>%
     keras::layer_flatten() %>%
-    keras::layer_dropout(rate=0.5) %>%
-    keras::layer_dense(units=512, activation = "relu") %>%
+    keras::layer_dense(units=500, activation = "relu") %>%
+    keras::layer_dropout(rate=0.2) %>%
     keras::layer_dense(units = 1, activation = "sigmoid")
 
-  model_architecture %>% keras::compile(loss="binary_crossentropy",
-                                        optimizer = keras::optimizer_rmsprop(lr=1e-5),
+    model_architecture %>% keras::compile(loss="binary_crossentropy",
+                                        optimizer = keras::optimizer_adam(),
                                         metrics = c("acc"))
   return(model_architecture)
 
@@ -497,19 +525,19 @@ createModel <- function() {
 
 As you can see, the first Keras function used in `createModel` is `keras_model_sequential()`. It's nothing more, than saying "my model will consist of a few layers, which I'm going to add now". And then comes the most important part: adding the layers. The "first part" of the model's architecture consists of two types of layers: 
 
-- `layer_conv_2d` - convolutional layers used by the model to learn the patterns. The arguments `filters` and `kernel_size` passed to the model determine how precise the learning should be. The smaller the numbers of the arguments are, the bigger features of the pictures are spotted. That's why we start with setting `filters=32` and finish with `filters=128`. At first our model learns the features that are realatively easy to spot during training. As we are deeper in our neural network (further from the input image), we try to spot more nuances, therefore we increase `filters` argument. Our pictures aren't very detailed, that's why we don't need to use a lot of filters. 128 is a relatively small number, but it's perfectly sufficient for our images. And what about `kernel_size` argument? We set it to (3,3), because this is the most optimal number in our case. The pictures are quite big as for images to pass to the model, but again, their construction is pretty simple, so it isn't necessary to use the bigger size (it would be less efficient computationally). Another argument in every convolutional layer is `activation`. It's where we specify our activation function. In our case it's "relu" which maps the values into a range 0-1. And `input_shape=c(150,150,3)` in the first layer tells our network what shape our samples have. 150x150 is their resolution, while 3 indicates color depth (we have RGB images - in such case it will always be 3).
+- `layer_conv_2d` - convolutional layers used by the model to learn the patterns. The arguments `filters` and `kernel_size` passed to the model determine how precise the learning should be. The smaller the numbers of the arguments are, the bigger features of the pictures are spotted. That's why we start with setting `filters=16` and finish with `filters=64`. At first our model learns the features that are realatively easy to spot during training. As we are deeper in our neural network (further from the input image), we try to spot more nuances, therefore we increase `filters` argument. Our pictures aren't very detailed, that's why we don't need to use a lot of filters. 64 is a relatively small number, but it's perfectly sufficient for our images. And what about `kernel_size` argument? We set it to (2,2), because this is the most optimal number in our case. The pictures aren't big as for images to pass to the model and their construction is pretty simple, so it isn't necessary to use the bigger size (it would be less efficient computationally). Another argument in every convolutional layer is `activation`. It's where we specify our activation function. In our case it's "relu" which maps the values into a range 0-1. And `input_shape=c(50,50,3)` in the first layer tells our network what shape our samples have. 50x50 is their resolution, while 3 indicates color depth (we have RGB images - in such case it will always be 3).
 
 - `layer_max_pooling_2d` - this type of layers is used for two reasons: it reduces the output shape within a model as well as it generalises the results of convolutional layers - they become invariant to scale or orientation changes. The argument `pool_size=c(2,2)` indicates by which to downscale (vertical, horizontal). In our case, the settings mean that the input will be halved in both spatial dimensions.
 
 After last pooling layer, we need to use:
 
-- `layer_flatten` - it reshapes the tensor to have a shape that is equal to the number of elements contained in the tensor. This is the same thing as making a 1d-array of elements. Such shape is needed while passing to the next layer.
+- `layer_dropout` - one of the ways to use dropout regularization technique in Keras. We set `rate=0.2` meaning that 20% of the features' values are substituted with 0 during training. It helps us avoid overfitting.
 
-- `layer_dropout` - one of the ways to use dropout regularization technique in Keras. We set `rate=0.5` meaning that half of the features' values are substituted with 0 during training.
+- `layer_flatten` - it reshapes the tensor to have a shape that is equal to the number of elements contained in the tensor. This is the same thing as making a 1d-array of elements. 
 
-- `layer_dense` - it's a regular densely connected neural network layer. Argument `units` denotes the output size of the layer, while in `activation`, we can declare the activation function we want to use. In the first dense layer in our model, we set `units=512` and `activation="relu"`. Basically, we could set `units` to any other value and see how it works. There isn't any pattern in choosing units number in dense layer - you need to try out a few values and see which gives the best accuracy and the lowest loss value. In the second dense layer, this number is important, though. We set `units=1`, because our expected output is a vector of probabilities. This is also the reson, why we chose "sigmoid" as the activation function. 
+- `layer_dense` - it's a regular densely connected neural network layer. Argument `units` denotes the output size of the layer, while in `activation`, we can declare the activation function we want to use. In the first dense layer in our model, we set `units=500` and `activation="relu"`. Basically, we could set `units` to any other value and see how it works. There isn't any pattern in choosing units number in dense layer - you need to try out a few values and see which gives the best accuracy and the lowest loss value. In the second dense layer, this number is important, though. We set `units=1`, because our expected output is a vector of probabilities. This is also the reson, why we chose "sigmoid" as the activation function. 
 
-We defined the model's architecture, so the next step is to prepare it for training. The second part of `createModel` uses Keras `compile` function. There, we define the parameters based on which our model is trained. Among these parameters is loss function (argument `loss` - we set it to "binary crossentropy", because our dataset consists of images belonging to two classes), metrics to be evaluated by the model during training and testing (argument `metrics` - in our case it's accuracy) and optimalization method (argument `optimalizer` set to "rmsprop").
+We defined the model's architecture, so the next step is to prepare it for training. The second part of `createModel` uses Keras `compile` function. There, we define the parameters based on which our model is trained. Among these parameters is loss function (argument `loss` - we set it to "binary crossentropy", because our dataset consists of images belonging to two classes), metrics to be evaluated by the model during training and testing (argument `metrics` - in our case it's accuracy) and optimalization method (argument `optimalizer` set to "adam").
 
 So, what `createModel` returns after executing it, is a compiled Keras model object, ready do be trained on the data. 
 
@@ -519,14 +547,14 @@ So, what `createModel` returns after executing it, is a compiled Keras model obj
 trainModel <- function(model) {
 
              model %>% fit_generator(train_data,
-                                     steps_per_epoch = 2,
-                                     epochs = 2,
+                                     steps_per_epoch = train_data$n/train_data$batch_size,
+                                     epochs = 20,
                                      validation_data = valid_data,
-                                     validation_steps = 5)
+                                     validation_steps = valid_data$n/valid_data$batch_size)
   return(model)
 }
 ```
-What is important here is that we *have to* use `fit_generator` instead of `fit`, because the prepared data will be passed on by generators. There are two arguments in `fit_generator` worth mentioning: `steps_per_epoch` and `validation_steps`. Their value is supposed to be set to number of samples divided by a batch size of the training and validation sets respectively. Of course, both arguments should be integers.
+What is important here is that we *have to* use `fit_generator` instead of `fit`, because the prepared data will be passed on by generators. There are two arguments in `fit_generator` worth mentioning: `steps_per_epoch` and `validation_steps`. Their value is supposed to be set to number of samples divided by a batch size of the training and validation sets respectively. Of course, both arguments should be integers. You need to be careful while setting `epochs` too. Too many may result in overfitting, while too few in underfitting. 
 
 3. `evaluateModel` - it simply evaluates the model on the testing data generator. It classifies the data and then compares the results with the real labels. As a result, we get accuracy and loss of our model stored in a data frame.
 
@@ -614,11 +642,13 @@ This masterscript is a place to create the model. We can do it by using:
 
 1. `splitAndSave` function, where we specify the number of samples using config file. The dataset is split and saved under a chosen folder path.
 
-2. `getLabelledImages` called twice - to generate training and validation samples in a proper form.
+2. `getTrainingImages` to generate training samples in a proper form
 
-3. `createModel` and `trainModel` functions to obtain a trained model.
+3. `getLabelledImages` to generate validation samples in a proper form.
 
-4. `getSessionId` and `saveModel` to save the trained model in our "Models" folder under a name "model + session_id"
+4. `createModel` and `trainModel` functions to obtain a trained model.
+
+5. `getSessionId` and `saveModel` to save the trained model in our "Models" folder under a name "model + session_id"
 
 After running the whole masterscript, we should obtain a trained model, saved on our disk.
 
@@ -628,7 +658,9 @@ This masterscript is a place to evaluate the previously created model. We can do
 
 1. `loadModel` to read the model created in "m_train_model.R" called "model + session_id".
 
-2. `getUnlabelledImages` to generate testing data in a proper form.
+2. `getLabelledImages` to generate testing data in a proper form.
+
+3. `resetGenerator` to reset the generator of the testing samples.
 
 3. `evaluateModel` and `saveModelEvaluation` to evaluate our model on the testing samples and save the evaluation into a .csv file.
 
@@ -653,3 +685,15 @@ This masterscript is designed as a place, where real data should be tested. We c
 4. `getInfectedIndices` and `saveInfected` to extract only these samples, which are likely to be infected and to save them in a separate .csv file.
 
 After running the whole masterscript, we should obrain two .csv files: "predictions + pred_id" and "infected + pred_id" saved in our work folder called "work + session_id". 
+
+## Results ##
+
+Using the exactly same piece of code I've just described, I was able to obtain over 95% training accuracy and 97% validation accuracy:
+
+![screen from training](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/modelokok.png)
+
+while accuracy on my testing sample was over 93%:
+
+![screen of acc and loss](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/lossANDacc.png)
+
+Take into account, that the training dataset consisted only of 3000 images of each class, while the validation consisted of 1000 images of each class. I trained the model for 20 epochs, and I don't recommend increasing this number - it results in model overfitting. 
