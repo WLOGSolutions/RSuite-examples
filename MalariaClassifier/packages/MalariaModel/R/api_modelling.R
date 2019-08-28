@@ -35,7 +35,8 @@ trainModel <- function(model) {
 
              model %>% fit_generator(train_data,
                                      steps_per_epoch = 100,
-                                     epochs = 10,
+                                     epochs = 20,
+                                     view_metrics = TRUE,
                                      validation_data = valid_data,
                                      validation_steps = 200)
   return(model)
