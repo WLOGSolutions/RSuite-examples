@@ -52,6 +52,7 @@ getSessionId <- function(){
 #'Save the trained model.
 #' @param model The trained model.
 #' @param save_path A path to a folder where the model is supposed to be saved.
+#' @param session Session_id.
 #' @return A folder named "work + session_id" with a hdf5 file named "my_model" inside.
 #' @export
 saveModel <- function(model, save_path, session) {
@@ -83,13 +84,12 @@ loadModel <- function(models_f_path, session){
 
 #'Evaluate the trained model based on the test dataset and save the results in a work folder.
 #'@param model A trained model.
-#'@param test_data A data tensor in a shape of N x 150 x 150 x 3.
-#'@param test_labels A vector of labels.
+#'@param test_data Keras data generator.
 #'@return A data table with accuracy and loss statistics saved in a .csv file in a work folder.
 #'
 #'@export
 evaluateModel <- function(model, test_data){
-  eva <- keras::evaluate_generator(model, test_data, steps = ceiling(test_data$n/test_data$batch_size))
+  eva <- keras::evaluate_generator(model, test_data, steps = test_data$n/test_data$batch_size)
   dt <- data.table::data.table(loss = eva$loss, acc = eva$acc)
   return(dt)
 }
@@ -117,6 +117,7 @@ saveModelEvaluation <- function(dt, f_path, session_id) {
 
 }
 
+#'Reset image generator
 #'@export
 #'
 resetGenerator <- function(test_data){
@@ -125,7 +126,7 @@ resetGenerator <- function(test_data){
 
 #' Predict classes and probabilities of belonging to the predicted class for the testing samples using a trained model.
 #' @param model A fitted keras model object.
-#' @param test_data A data tensor in a shape of N x 150 x 150 x 3.
+#' @param test_data Keras data generator.
 #' @return A data table with two columns: Class and Probability saved in a .csv file in a work folder.
 #' @export
 predictClassesAndProbabilities <- function(model, test_data){
@@ -224,6 +225,8 @@ applyCalibration <- function(f_path, session_id, dt){
 #'Save predicted classes and probabilities into a .csv file.
 #'@param dt A data table/data frame object.
 #'@param f_path A path to the folder where predictions are supposed to be saved.
+#'@param session_id Session_id.
+#'@param pred_id Prediction_id.
 #'@return A .csv file called "predictions".
 #'@export
 savePredictions <- function(dt, f_path, session_id, pred_id) {

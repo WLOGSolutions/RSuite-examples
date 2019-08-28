@@ -114,9 +114,13 @@ splitAndSave <- function(data_path, new_path, id_train, id_valid, id_test) {
   pkg_loginfo("Found %d Uninfected images in the test folder.", num_test)
 }
 
-#' 
-#' @export
-getAugmentedImages <- function(new_data_path, folder_name, batch_size){
+#'Augment the samples from training dataset.
+#'@param new_data_path A path to the folder with the samples.
+#'@param folder_name The name of a folder with the samples.
+#'@param batch_size A size of one batch of samples.
+#'@return Keras image generator with augmented data.
+#'@export
+getTrainingImages <- function(new_data_path, folder_name, batch_size){
 
   aug_generator <- keras:: image_data_generator(rescale = 1/255,
                                                 rotation_range=20,
@@ -140,6 +144,7 @@ getAugmentedImages <- function(new_data_path, folder_name, batch_size){
 #'Convert the images with labels into a proper form.
 #'@param new_data_path A path to the folder with the samples.
 #'@param folder_name The name of the folder with the samples.
+#'@param batch_size A size of one batch of samples.
 #'@return Keras image generator.
 #'@export
 getLabelledImages <- function(new_data_path, folder_name, batch_size) {

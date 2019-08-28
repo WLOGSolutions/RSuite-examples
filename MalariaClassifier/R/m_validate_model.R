@@ -49,7 +49,7 @@ test_data <- DataPreparation::getLabelledImages(config$new_folder_path,
 
 #Reset test generator
 
-resetGenerator(test_data)
+MalariaModel::resetGenerator(test_data)
 
 #Evaluate the trained model
 
