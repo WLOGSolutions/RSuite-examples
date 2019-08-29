@@ -37,7 +37,8 @@ Author: Urszula Białończyk
     - [Understanding masterscript: m_train_model.R](#understanding-masterscript-m_train_modelr)
     - [Understanding masterscript: m_validate_model.R](#understanding-masterscript-m_validate_modelr)
     - [Understanding masterscript: m_score_model.R](#understanding-masterscript-m_score_modelr)
-- [Results](#results)    
+- [Results](#results)
+- [Bibliography](#bibliography)
     
 <!-- markdown-toc end -->
 
