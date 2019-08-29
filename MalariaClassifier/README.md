@@ -698,6 +698,6 @@ Feel free to play around with the model by adding/removing layers, changing opti
 
 ## Bibliography ##
 
-- [https://www.kaggle.com/sharp1/malaria-cells-classification-through-keras]
-- [https://medium.com/gradientcrescent/building-a-malaria-classifier-with-keras-background-implementation-d55c32773afa]
+- https://www.kaggle.com/sharp1/malaria-cells-classification-through-keras
+- https://medium.com/gradientcrescent/building-a-malaria-classifier-with-keras-background-implementation-d55c32773afa
 - Chollet, Deep learning with R
