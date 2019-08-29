@@ -47,14 +47,14 @@ Author: Urszula Białończyk
 Imagine you're a data scientist working in a science lab. One day you are asked to analise some data involving malaria and the results you obtain are horrifying: the number of people affected by this disease has started to raise dramatically over the past few months. You know nothing about biology, so you can't help with curing it, but you're good at detecting patterns, so you may be able to build a model which recognises wether a person is infected or not. You ask around a little and you learn that to check the patient's health status, the first step is to analise their drop of blood. This is a quite good information, because you know that to classify images you need to bulild a convolutional neural network. You encounter two problems, though. First, you know that the best results in classifing images can be obtained using Python's library Keras. The problem is, you've been working with R your whole life and there is no time to learn Python now. Second, your coworkers have to be able to use your solution and since they are biologists, they know nothing about R or any other programming language. So what you need to do is to build an application in R which gives as good results as if it was built in Python, which can be used on different computers and which is pretty simple in deployment. All of the above at the same time. Seems impossible?
 You're a pretty good data scientist, so you don't give up that easily. You dig a little deeper and find a few names that will enable you to complete your task:
 
-1. **R Suite** - an R package for reproducible projects with controlled dependencies and configuration. Apart from this, one of the biggest advantages of an RSuite project is the fact that it is really clearly written. Everyone is able to understand what's going on in particular parts of it due to the way how they are divided.
+1. **R Suite** - an R package for reproducible projects with controlled dependencies and configuration. Apart from this, one of the biggest advantages of an RSuite project is the fact that it is really clearly written. Everyone is able to understand what's going on in particular parts of it due to the way they are divided.
 
 2. **reticulate** - an R interface to Python which made all of it possible. Thanks to it, we can take the most of the two languages. It combines the power of R and Python, making machine learning the most accessible it's ever been.
 
 3. **Keras** - a powerful Python package which enables to build complicated machine learning models (in particular neural networks) with relatively little effort. It’s a great tool and if you don’t know or simply don’t like Python and prefer R instead, as for today there are three ways to use Keras package in R.
 
 You can combine all of the above tools and build a Malaria Classifier in R. More specifically, you are about to build a convolutional neural network detecting whether the patient is infected or not based on the image of the patient's drop of blood. 
-More than this - you will create a project divided into three parts: first responsible for preparing and training the model, second for scoring it - this is your job. The third part will be for your coworkers - it will use the models trained in the first two parts to predict the outcome of the examination.
+More than this - you will create a project divided into three parts: first responsible for preparing and training the model, second for validating it - this is your job. The third part will be for your coworkers - it will use the models trained in the first two parts to predict the outcome of the examination.
 
 Lucky for you, I've already fulfilled such task, so I will guide you through preparation and deployment of the project. I hope that after this tutorial you will be able to create similar solution all by yourself.
 
@@ -345,7 +345,7 @@ What's inside them? In R folder, you will find the masterscripts. In libs, the p
 - **id_test, id_valid, id_train** - they are used for training and testing models, so they aren't needed for production (they aren't used in "m_validate_model.R" or "m_score_model.R"). They denote the indices of training, validation and testing samples (both parasitized and uninfected): [1, id_train] is the interval of the indices of training samples, [id_train+1, id_valid] of validation samples and [id_valid+1, id_test] of testing samples.
 - **session_id** - this is extremely important for people using "m_validate_model.R" and "m_score_model.R". This id will indicate which of the models to use. Each of the models from "Models" folder will be named "model + number". And this number of a wanted model is what you're supposed to type in session_id.
 - **images_for_analysis** - only for your coworkers. The path to a folder where they store folder with the samples to be tested using the models you built.
-- **prediction_id** - also, very importand for your coworkers. When they want to use the same model to test different samples, they need to distinguish the files with the results somehow. And this is why they need to fill "prediction_id". It will appear in the name of the file with predictions (the file will be called "predictions + prediction_id").
+- **prediction_id** - also, very important for your coworkers. When they want to use the same model to test different samples, they need to distinguish the files with the results somehow. And this is why they need to fill "prediction_id". It will appear in the name of the file with predictions (the file will be called "predictions + prediction_id").
 
 4. Open the terminal and go to the folder "Production". Then open R folder and type:
 ```
@@ -388,7 +388,7 @@ So, let's sum up what we've just done:
 This means we successfully completed the task described in the introduction. If you're interested in creating and developing similar projects, please check out these articles:
 
 - Classifying handwritten digits (MNIST dataset) using Keras and Shiny [click here](https://github.com/WLOGSolutions/Keras_and_Shiny)
--
+- Classifying handwritten digits (MNIST dataset) using Keras in R - different approach [click here](https://www.linkedin.com/pulse/r-python-commingled-how-get-best-both-worlds-alfonso-r-reyes/)
 
 And if you want to know exactly how and why the particular parts of the R code were created, the next section is for you.
 
@@ -467,9 +467,7 @@ getTrainingImages <- function(new_data_path, folder_name, batch_size){
 ```
 In order to improve the ability of learning by our model, we need to augment the training samples. Thanks to it, the model will learn better and it will help us avoid overfitting. So what this function does, is that it generates batches of data, where each image is randomly rotated (`rotation_range`), randomly zoomed (`zoom_range`), randomly transformed (`width_shift`, `height_shift`), randomly cropped (`shear_range`), randomly mirrored (`horizontal_flip`) and when new pixels occur due to the rotation or shifting, they are filled with the nearest ones (`fill_mode`).
 
-Of course, preparing the data for modelling is slightly different than preparing it for being used by the trained model. That's why we have one more function in DataPreparation package:
-
-- `getUnlabelledImages` - its goal is to prepare the real data to be used by the model. It's very similar to `getLabelledImages`, but let's look at it:
+Of course, preparing the data for modelling is slightly different than preparing it for being used by the trained model. That's why we have one more function in DataPreparation package: `getUnlabelledImages` - its goal is to prepare the real data to be used by the model. It's very similar to `getLabelledImages`, but let's look at it:
 
 ```
 getUnlabelled <- function(image_path){
@@ -642,7 +640,7 @@ This masterscript is a place to create the model. We can do it by using:
 
 1. `splitAndSave` function, where we specify the number of samples using config file. The dataset is split and saved under a chosen folder path.
 
-2. `getTrainingImages` to generate training samples in a proper form
+2. `getTrainingImages` to generate training samples in a proper form.
 
 3. `getLabelledImages` to generate validation samples in a proper form.
 
@@ -659,8 +657,6 @@ This masterscript is a place to evaluate the previously created model. We can do
 1. `loadModel` to read the model created in "m_train_model.R" called "model + session_id".
 
 2. `getLabelledImages` to generate testing data in a proper form.
-
-3. `resetGenerator` to reset the generator of the testing samples.
 
 3. `evaluateModel` and `saveModelEvaluation` to evaluate our model on the testing samples and save the evaluation into a .csv file.
 
@@ -696,4 +692,12 @@ while accuracy on my testing sample was over 93%:
 
 ![screen of acc and loss](https://github.com/WLOGSolutions/RSuite-examples/blob/malaria/MalariaClassifier/ImagesForDescriptionToExport/lossANDacc.png)
 
-Take into account, that the training dataset consisted only of 3000 images of each class, while the validation consisted of 1000 images of each class. I trained the model for 20 epochs, and I don't recommend increasing this number - it results in model overfitting. 
+On n1-standard-8 (standard machine type with 8 vCPUs and 30 GB of memory), training time took around 6 minutes. Take into account, that the training dataset consisted only of 3000 images of each class, while the validation dataset consisted of 1000 images of each class. I trained the model for 20 epochs and the batch size for each dataset was set to 50.  
+
+Feel free to play around with the model by adding/removing layers, changing optimizer type or the number of samples. I can assure you, seeing accuracy going up and loss going down, is quite a rewarding experience after the time you've put into creating the model.
+
+## Bibliography ##
+
+- [https://www.kaggle.com/sharp1/malaria-cells-classification-through-keras]
+- [https://medium.com/gradientcrescent/building-a-malaria-classifier-with-keras-background-implementation-d55c32773afa]
+- Chollet, Deep learning with R
