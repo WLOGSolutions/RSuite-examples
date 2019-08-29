@@ -47,9 +47,6 @@ test_data <- DataPreparation::getLabelledImages(config$new_folder_path,
                                                 "test",
                                                 batch_size = 1)
 
-#Reset test generator
-
-MalariaModel::resetGenerator(test_data)
 
 #Evaluate the trained model
 

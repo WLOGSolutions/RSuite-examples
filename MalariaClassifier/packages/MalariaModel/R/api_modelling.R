@@ -117,13 +117,6 @@ saveModelEvaluation <- function(dt, f_path, session_id) {
 
 }
 
-#'Reset image generator
-#'@export
-#'
-resetGenerator <- function(test_data){
-  test_data$reset
-}
-
 #' Predict classes and probabilities of belonging to the predicted class for the testing samples using a trained model.
 #' @param model A fitted keras model object.
 #' @param test_data Keras data generator.
