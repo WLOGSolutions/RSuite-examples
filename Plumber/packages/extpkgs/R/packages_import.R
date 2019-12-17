@@ -1,11 +1,9 @@
 #----------------------------------------------------------------------------
-# DataPreparation
+# extpkgs
 #
 # Global package definitions and imports
 #----------------------------------------------------------------------------
 
 #' @import logging
-#' @import keras
-#' @import tensorflow
-#' @import abind
+#' @import plumber
 NULL

@@ -1,0 +1,44 @@
+#swagger
+
+User-Agent: Emacs/restclient
+Content-Type: application/x-www-form-urlencoded
+
+GET http://localhost:8000/
+
+
+#build models
+
+User-Agent: Emacs/restclient
+Content-Type: application/x-www-form-urlencoded
+
+POST http://localhost:8000/build_models
+
+{
+}
+
+
+#row-id score
+
+User-Agent: Emacs/restclient
+Content-Type: application/x-www-form-urlencoded
+
+POST http://localhost:8000/score
+
+{
+	"row_id" : 2
+}
+
+#vars score
+
+User-Agent: Emacs/restclient
+Content-Type: application/x-www-form-urlencoded
+
+POST http://localhost:8000/score_vars
+
+{
+	"district":"Srodmiescie",
+	"no.rooms":"5",
+	"construction.year":2005,
+	"floor":"2",
+	"surface":"69"
+}

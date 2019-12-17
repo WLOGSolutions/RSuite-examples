@@ -6,7 +6,7 @@
 #' @return A folder with training, validation and testing samples.
 #'
 #' @export
-splitAndSave <- function(data_path, new_path, m, n, o, p, r){
+splitAndSave <- function(data_path, new_path, id_train, id_valid, id_test) {
 
   original_dataset_dir <- data_path
 
@@ -14,54 +14,54 @@ splitAndSave <- function(data_path, new_path, m, n, o, p, r){
 
   base_dir <- new_path
 
-  if(!dir.exists(base_dir)){
+  if (!dir.exists(base_dir)) {
     dir.create(base_dir)
   }
 
   #Creating subfolders
 
   train_dir <- file.path(base_dir, "train")
-  if(!dir.exists(train_dir)){
+  if (!dir.exists(train_dir)) {
     dir.create(train_dir)
   }
 
   validation_dir <- file.path(base_dir, "validation")
-  if(!dir.exists(validation_dir)){
+  if (!dir.exists(validation_dir)) {
     dir.create(validation_dir)
   }
 
   test_dir <- file.path(base_dir, "test")
-  if(!dir.exists(test_dir)){
+  if (!dir.exists(test_dir)) {
     dir.create(test_dir)
   }
 
   train_infected_dir <- file.path(train_dir, "Parasitized")
-  if(!dir.exists(train_infected_dir)){
+  if (!dir.exists(train_infected_dir)) {
     dir.create(train_infected_dir)
   }
 
   train_uninfected_dir <- file.path(train_dir, "Uninfected")
-  if(!dir.exists(train_uninfected_dir)){
+  if (!dir.exists(train_uninfected_dir)) {
     dir.create(train_uninfected_dir)
   }
 
   validation_infected_dir <- file.path(validation_dir, "Parasitized")
-  if(!dir.exists(validation_infected_dir)){
+  if (!dir.exists(validation_infected_dir)) {
     dir.create(validation_infected_dir)
   }
 
   validation_uninfected_dir <- file.path(validation_dir, "Uninfected")
-  if(!dir.exists(validation_uninfected_dir)){
+  if (!dir.exists(validation_uninfected_dir)) {
     dir.create(validation_uninfected_dir)
   }
 
   test_infected_dir <- file.path(test_dir, "Parasitized")
-  if(!dir.exists(test_infected_dir)){
+  if (!dir.exists(test_infected_dir)) {
     dir.create(test_infected_dir)
   }
 
   test_uninfected_dir <- file.path(test_dir, "Uninfected")
-  if(!dir.exists(test_uninfected_dir)){
+  if (!dir.exists(test_uninfected_dir)) {
     dir.create(test_uninfected_dir)
   }
 
@@ -69,108 +69,110 @@ splitAndSave <- function(data_path, new_path, m, n, o, p, r){
   para_names <- list.files(file.path(data_path, "Parasitized"), "*.png")
   uninf_names <- list.files(file.path(data_path, "Uninfected"), "*.png")
 
-  #Fill the created folders with images
-  fnames1 <- para_names[1:m]
-  file.copy(file.path(original_dataset_dir, "Parasitized", fnames1), file.path(train_infected_dir))
+  num_train <- as.numeric(id_train)
+  num_valid <- as.numeric(id_valid) - as.numeric(id_train)
+  num_test <- as.numeric(id_test) - as.numeric(id_valid)
 
-  fnames2 <- para_names[n : o]
-  file.copy(file.path(original_dataset_dir, "Parasitized", fnames2), file.path(validation_infected_dir))
+  #Fill train folder with images
+  fnames1 <- para_names[1:as.numeric(id_train)]
+  file.copy(file.path(original_dataset_dir, "Parasitized", fnames1),
+            file.path(train_infected_dir))
 
-  fnames3 <- para_names[p:r]
-  file.copy(file.path(original_dataset_dir, "Parasitized",fnames3), file.path(test_infected_dir))
+  pkg_loginfo("Found %d Parasitized images in the train folder.", num_train)
 
-  fnames4 <- uninf_names[1:m]
-  file.copy(file.path(original_dataset_dir, "Uninfected", fnames4), file.path(train_uninfected_dir))
+  fnames2 <- uninf_names[1:as.numeric(id_train)]
+  file.copy(file.path(original_dataset_dir, "Uninfected", fnames2),
+            file.path(train_uninfected_dir))
 
-  fnames5 <- uninf_names[n:o]
-  file.copy(file.path(original_dataset_dir, "Uninfected", fnames5), file.path(validation_uninfected_dir))
+  pkg_loginfo("Found %d Uninfected images in the train folder.", num_train)
 
-  fnames6 <- uninf_names[p:r]
-  file.copy(file.path(original_dataset_dir, "Uninfected", fnames6), file.path(test_uninfected_dir))
+
+  #Fill validation folder with images
+  fnames3 <- para_names[(as.numeric(id_train)+1) : as.numeric(id_valid)]
+  file.copy(file.path(original_dataset_dir, "Parasitized", fnames3),
+            file.path(validation_infected_dir))
+
+  pkg_loginfo("Found %d Parasitized images in the validation folder.", num_valid)
+
+  fnames4 <- uninf_names[(as.numeric(id_train)+1):as.numeric(id_valid)]
+  file.copy(file.path(original_dataset_dir, "Uninfected", fnames4),
+            file.path(validation_uninfected_dir))
+
+  pkg_loginfo("Found %d Uninfected images in the validation folder.", num_valid)
+
+  #Fill test folder with images
+  fnames5 <- para_names[(as.numeric(id_valid)+1):as.numeric(id_test)]
+  file.copy(file.path(original_dataset_dir, "Parasitized", fnames5),
+            file.path(test_infected_dir))
+
+  pkg_loginfo("Found %d Parasitized images in the test folder.", num_test)
+
+  fnames6 <- uninf_names[(as.numeric(id_valid)+1):as.numeric(id_test)]
+  file.copy(file.path(original_dataset_dir, "Uninfected", fnames6),
+            file.path(test_uninfected_dir))
+
+  pkg_loginfo("Found %d Uninfected images in the test folder.", num_test)
 }
 
-#'Load the images and convert them into arrays
-#'@param image_fpath A path to a folder where the images are stored
-#'@return Images with a shape of an array
+#'Augment the samples from training dataset.
+#'@param new_data_path A path to the folder with the samples.
+#'@param folder_name The name of a folder with the samples.
+#'@param batch_size A size of one batch of samples.
+#'@return Keras image generator with augmented data.
 #'@export
+getTrainingImages <- function(new_data_path, folder_name, batch_size){
 
-ImageLoad <- function(image_fpath){
-  image <- keras::image_load(image_fpath, target_size = c(150, 150))
-  image_array <- image_to_array(image)
-  return(image_array)
+  aug_generator <- keras:: image_data_generator(rescale = 1/255,
+                                                rotation_range=20,
+                                                zoom_range=0.05,
+                                                width_shift_range=0.05,
+                                                height_shift_range=0.05,
+                                                shear_range=0.05,
+                                                horizontal_flip=TRUE,
+                                                fill_mode="nearest")
+
+  data_generator <- keras:: flow_images_from_directory(file.path(new_data_path, folder_name),
+                                                       aug_generator,
+                                                       target_size = c(50, 50),
+                                                       classes = c("Uninfected", "Parasitized"),
+                                                       batch_size = batch_size,
+                                                       class_mode = "binary")
+  return(data_generator)
+
 }
 
-#'Convert the images into a proper form.
+#'Convert the images with labels into a proper form.
 #'@param new_data_path A path to the folder with the samples.
 #'@param folder_name The name of the folder with the samples.
-#'@return A list of images encoded as tensors and labels: 1 - Parasitized, 0 - Uninfected
+#'@param batch_size A size of one batch of samples.
+#'@return Keras image generator.
 #'@export
-getAllImages <- function(new_data_path, folder_name){
-  data <- array(dim = c(0, 150, 150, 3))
-  labels <- character(0)
-  para_names <- list.files(file.path(new_data_path, folder_name, "Parasitized"), "*.png")
-  n <- length(para_names)
-  number_data <- array(dim = c(n, 150, 150, 3))
-  number_labels <- rep(as.character(1), n)
-  pkg_loginfo("Number of images with label %d: %d", 1, n)
+getLabelledImages <- function(new_data_path, folder_name, batch_size) {
 
-  # a loop over all files in a subfolder "Parasitized"
+  generator <- keras::image_data_generator(rescale = 1/255)
 
-  j <- 1
-  for (para_name in para_names) {
-    image_fpath <- file.path(new_data_path, folder_name, "Parasitized", para_name)
-    number_data[j, , , ] <- ImageLoad(image_fpath)
-    if (j %% 100 == 0)
-      pkg_loginfo("Processed %d out of %d images (label %d)...", j, n, 1)
-    j <- j + 1
-  }
-
-  data2 <- array(dim = c(0, 150, 150, 3))
-  labels2 <- character(0)
-  uninf_names <- list.files(file.path(new_data_path, folder_name, "Uninfected"), "*.png")
-  m <- length(uninf_names)
-  number_data2 <- array(dim = c(m, 150, 150, 3))
-  number_labels2 <- rep(as.character(0), m)
-  pkg_loginfo("Number of images with label %d: %d", 0, m)
-
-  # a loop over all files in a subfolder "Uninfected"
-
-  j <- 1
-  for (uninf_name in uninf_names) {
-    image_fpath <- file.path(new_data_path, folder_name, "Uninfected", uninf_name)
-    number_data2[j, , , ] <- ImageLoad(image_fpath)
-    if (j %% 100 == 0)
-      pkg_loginfo("Processed %d out of %d images (label %d)...", j, m, 0)
-    j <- j + 1
-  }
-
-  data <- abind(data, number_data, along = 1)
-  labels <- c(labels, number_labels)
-
-  data2 <- abind(data2, number_data2, along=1)
-  labels2 <- c(labels2, number_labels2)
-
-  return(list(data_tensor = c(data, data2), labels = c(labels, labels2)))
+  data_generator <- keras:: flow_images_from_directory(file.path(new_data_path, folder_name),
+                                                       generator,
+                                                       target_size = c(50, 50),
+                                                       classes = c("Uninfected", "Parasitized"),
+                                                       batch_size = batch_size,
+                                                       class_mode = "binary")
+  return(data_generator)
 }
 
-#'Convert samples into a proper shape: normalize pixel intensities, reshape tensors into a form of (n, 150, 150, 3), convert the lables.
-#'@param tensors Data tensors.
-#'@param labels Data lables.
-#'@param n length of the sample.
-#'@return A list of data tensors and data lables.
-
+#'Convert the images without labels for analysis into a proper form.
+#'@param image_path A path to the folder with the samples..
+#'@return Keras image generator.
 #'@export
-convertSamples <- function(dataset) {
-    n <- length(dataset$labels)
-                                        #reshape arrays
-    tensors <- array_reshape(dataset$data_tensor, c(n, 150, 150, 3))
-                                        #normalize pixel intensities
-    tensors <- tensors / 255
-                                        #convert lables
-    labels <- c(rep(1, 0.5 * n), rep(0, 0.5 * n))
-    
-    return(list(
-        data_tensor = tensors,
-        labels = dataset$labels))
+getUnlabelledImages <- function(image_path){
 
+  generator <- keras::image_data_generator(rescale = 1/255)
+
+  data_generator <- keras::flow_images_from_directory(image_path,
+                                                      generator,
+                                                      target_size = c(50, 50),
+                                                      batch_size = 1,
+                                                      class_mode = NULL,
+                                                      shuffle = FALSE)
+  return(data_generator)
 }
