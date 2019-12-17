@@ -1,11 +1,10 @@
 #----------------------------------------------------------------------------
-# DataPreparation
+# ScoringEngine
 #
 # Global package definitions and imports
 #----------------------------------------------------------------------------
 
 #' @import logging
-#' @import keras
-#' @import tensorflow
-#' @import abind
+#' @import DALEX
+#' @import h2o
 NULL

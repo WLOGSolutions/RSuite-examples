@@ -1,11 +1,10 @@
 LogLevel: INFO
 dataset_path: path to the folder where your original cell_images dataset is stored
 new_folder_path: path to your Work folder
-m: the last index of image from the testing set
-n: the first index of image from the validation set
-o: the last index of image from the validation set
-p: the first index of image from the test set
-r: the last index of image from the test set
+id_train: index of the last image for training dataset
+id_valid: index of the last image for validation dataset
+id_test: index of the last image for testing dataset
 models_folder_path: path to folder "Models"
-session_id: the number of session (date + time)
-prediction_id: the number of prediction
+session_id: session index
+images_for_analysis: path to the folder with samples for analysis
+prediction_id: prediction index

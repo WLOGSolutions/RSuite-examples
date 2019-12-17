@@ -21,10 +21,12 @@ args <- args_parser()
 
 if (grepl("darwin|linux-gnu", R.version$os)) {
   #Linux or MacOS
-  reticulate::use_python(python = file.path(script_path, "..", "conda", "bin"), require = TRUE)
+    reticulate::use_python(python = file.path(script_path, "..", "conda", "bin"),
+                           require = TRUE)
 } else {
   # Windows
-  reticulate::use_python(python = file.path(script_path, "..", "conda"), require = TRUE)
+    reticulate::use_python(python = file.path(script_path, "..", "conda"),
+                           require = TRUE)
 }
 
 suppressPackageStartupMessages({
@@ -41,21 +43,20 @@ suppressPackageStartupMessages({
 DataPreparation::splitAndSave(
                      config$dataset_path,
                      config$new_folder_path,
-                     config$m,
-                     config$n,
-                     config$o,
-                     config$p,
-                     config$r)
+                     config$id_train,
+                     config$id_valid,
+                     config$id_test)
 
 
 #Get training and validation samples
 
-train_data <- DataPreparation::getAllImages(config$new_folder_path, "train") %>%
-    DataPreparation::convertSamples()
+train_data <- DataPreparation::getTrainingImages(config$new_folder_path,
+                                                 "train",
+                                                 batch_size = 50)
 
-valid_data <- DataPreparation::getAllImages(config$new_folder_path, "validation") %>%
-    DataPreparation::convertSamples()
-
+valid_data <- DataPreparation::getLabelledImages(config$new_folder_path,
+                                                 "validation",
+                                                 batch_size = 50)
 
 #2) MODEL TRAINING
 
@@ -64,10 +65,9 @@ valid_data <- DataPreparation::getAllImages(config$new_folder_path, "validation"
 model <- MalariaModel::createModel() %>%
     MalariaModel::trainModel()
 
-session_id <- Sys.time()
+session_id <- MalariaModel::getSessionId()
 
 #Save the model
 
-MalariaModel::saveModel(model, config$models_folder_path, session=session_id)
-
-
+MalariaModel::saveModel(model, config$models_folder_path,
+                        session = session_id)

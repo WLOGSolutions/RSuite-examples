@@ -36,7 +36,6 @@ suppressPackageStartupMessages({
 
 #-----------------------------------------------------------------------------------------------
 
-
 model <- MalariaModel::loadModel(config$models_folder_path, config$session_id)
 
                                         #3) MODEL TESTING
@@ -44,31 +43,51 @@ model <- MalariaModel::loadModel(config$models_folder_path, config$session_id)
                                         #Get testing samples
                                         #Convert the samples into a proper form
 
-test_data <- DataPreparation::getAllImages(config$new_folder_path, "test") %>%
-    DataPreparation::convertSamples()
+test_data <- DataPreparation::getLabelledImages(config$new_folder_path,
+                                                "test",
+                                                batch_size = 1)
+
 
 #Evaluate the trained model
 
 evaluation <- MalariaModel::evaluateModel(model,
-                                          test_data$data_tensor,
-                                          test_data$labels)
+                                          test_data)
 
 #Save model evaluation into a .csv file
 
 MalariaModel::saveModelEvaluation(dt = evaluation,
                                   config$new_folder_path,
-                                  session = config$session_id)
+                                  session_id = config$session_id)
 
-#Predict classes of the test samples and the probability of each sample belonging to the predicted class
+
+
+#Predict classes of the test samples and the probability scores
 
 predictions <- MalariaModel::predictClassesAndProbabilities(model,
-                                                            test_data$data_tensor)
+                                                            test_data)
+
+#Calibrate probabilities
+
+calibration <- MalariaModel::calibrateProbabilities(test_data,
+                                                    predictions)
+
+#Save calibration into an RDS file
+
+MalariaModel::saveCalibration(calibration,
+                              config$models_folder_path,
+                              config$session_id)
+
+#Apply calibration to the probabilities
+
+calibrated_predictions <- applyCalibration(config$models_folder_path,
+                                           config$session_id,
+                                           predictions)
 
 #Save predictions into a .csv file
 
-MalariaModel::savePredictions(dt = predictions,
+MalariaModel::savePredictions(dt = calibrated_predictions,
                               config$new_folder_path,
-                              session = config$session_id,
-                              number=config$prediction_id)
+                              session_id = config$session_id,
+                              pred_id = config$prediction_id)
 
 

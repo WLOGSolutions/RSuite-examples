@@ -5,4 +5,7 @@
 #----------------------------------------------------------------------------
 
 #' @import logging
+#' @import keras
+#' @import tensorflow
+#' @import data.table
 NULL
